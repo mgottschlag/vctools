@@ -10,6 +10,7 @@ latex_template = """
 \\usepackage[endianness=big]{bytefield}
 \\usepackage{hyperref}
 \\usepackage{fullpage}
+\\usepackage{tabularx}
 
 \\title{Totally Unofficial VideoCore MMIO Reference}
 \\author{}
@@ -18,6 +19,8 @@ latex_template = """
 
 \\maketitle
 
+\\refstepcounter{chapter}
+\\addcontentsline{toc}{chapter}{\\protect\\numberline{\\thechapter}\\contentsname}
 \\tableofcontents
 
 \\chapter{Introduction}
@@ -85,7 +88,13 @@ $REGISTER_BRIEF \\\\"""
 latex_register_template = """
 \\subsubsection*{$REGISTER_NAME: $REGISTER_BRIEF}
 
+Address: $REGISTER_ADDRESS
+
+\\subsubsection*{Description:}
+
 $REGISTER_DESC
+
+\\subsubsection*{Content:}
 
 \\begin{center}
 \\begin{bytefield}[rightcurly=., rightcurlyspace=0pt]{32}
@@ -93,13 +102,32 @@ $BITFIELD_DIAGRAM
 \\end{bytefield}
 \\end{center}
 
+\\begin{center}
+\\begin{tabularx}{\\textwidth}{|l|l|X|l|}
+\\hline
+Bits & Name & Description & Access\\\\
+\\hline
+$BITFIELD_TABLE
+\\end{tabularx}
+\\end{center}
 
-
-BITFIELDTABLE
 """
 
 def escapeLatex(text):
     return text.replace('_', '\\_')
+
+def formatAccess(access):
+    if access == 'r':
+        return 'R'
+    if access == 'w':
+        return 'W'
+    if access == 'rw':
+        return 'R/W'
+    if access == '?w':
+        return '?/W'
+    if access == 'r/?':
+        return 'R/?'
+    return escapeLatex(access)
 
 def generateBitfieldDiagram(reg):
     header = '\\bitheader{'
@@ -123,6 +151,21 @@ def generateBitfieldDiagram(reg):
     content += '\\\\'
     return header + content
 
+def generateBitfieldTable(reg):
+    text = ''
+    for bitfield in reg.bits:
+        low = bitfield.low
+        high = bitfield.high
+        if low == high:
+            text += str(low)
+        else:
+            text += str(high) + '-' + str(low)
+        text += ' & ' + escapeLatex(bitfield.name)
+        text += ' & ' + escapeLatex(bitfield.desc)
+        text += ' & ' + formatAccess(bitfield.access) + ' \\\\\n\\hline\n'
+    return text
+
+
 def generateRegisterAddress(reg):
     if not reg.array:
         return hex(reg.offset)
@@ -134,7 +177,7 @@ def generateRegisterName(reg):
         return escapeLatex(reg.name)
     else:
         template = string.Template(reg.name)
-        name = template.substitute(n='[0-' + str(reg.count) + ']')
+        name = template.substitute(n='[0-' + str(reg.count - 1) + ']')
         return escapeLatex(name)
 
 def generateRegisterTable(group):
@@ -142,7 +185,7 @@ def generateRegisterTable(group):
     template = string.Template(latex_register_table_template)
     for reg in group.registers:
         regdict = dict(REGISTER_ADDRESS=generateRegisterAddress(reg),
-                       REGISTER_ACCESS=escapeLatex(reg.access),
+                       REGISTER_ACCESS=formatAccess(reg.access),
                        REGISTER_NAME=generateRegisterName(reg),
                        REGISTER_BRIEF=escapeLatex(reg.brief),
                        REGISTER_DESC=escapeLatex(reg.desc))
@@ -154,11 +197,12 @@ def generateRegisterDocumentation(group):
     template = string.Template(latex_register_template)
     for reg in group.registers:
         regdict = dict(REGISTER_ADDRESS=generateRegisterAddress(reg),
-                       REGISTER_ACCESS=escapeLatex(reg.access),
+                       REGISTER_ACCESS=formatAccess(reg.access),
                        REGISTER_NAME=generateRegisterName(reg),
                        REGISTER_BRIEF=escapeLatex(reg.brief),
                        REGISTER_DESC=escapeLatex(reg.desc),
-                       BITFIELD_DIAGRAM=generateBitfieldDiagram(reg))
+                       BITFIELD_DIAGRAM=generateBitfieldDiagram(reg),
+                       BITFIELD_TABLE=generateBitfieldTable(reg))
         text += template.substitute(regdict)
     return text;
 

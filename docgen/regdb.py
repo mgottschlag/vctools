@@ -138,6 +138,8 @@ class RegisterDatabase:
             register.brief = dblist['brief']
         if 'desc' in dblist:
             register.desc = dblist['desc']
+        if 'access' in dblist:
+            register.access = dblist['access']
         if array_info != None:
             register.array = True
             register.count = array_info.count
@@ -154,6 +156,7 @@ class RegisterDatabase:
             bitfield = Bitfield()
             bitfield.low = 0
             bitfield.high = 31
+            bitfield.name = register.name
             register.bits.append(bitfield)
         register.bits = sorted(register.bits,
                                key=lambda bitfield: bitfield.low)
@@ -178,5 +181,7 @@ class RegisterDatabase:
                 bitfield.brief = entry['brief']
             if 'desc' in entry:
                 bitfield.desc = entry['desc']
+            if 'access' in entry:
+                bitfield.access = entry['access']
             register.bits.append(bitfield)
             pass
