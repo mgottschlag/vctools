@@ -1,0 +1,62 @@
+---
+type: group
+name: VC_MMIO
+offset: 0x7e000000
+bare: yes
+content:
+  - type: group
+    name: ALT_MMC
+    brief: Alternate interface to MMC/SD cards
+    offset: 0x2000
+    size: 0x1000
+    desc: >
+      This is used by bootcode.bin to load the next executable from the SD card.
+    content:
+      - type: register
+        name: CMD
+        brief: MMC Command
+        offset: 0x0
+        desc: >
+          TBD
+        bitset:
+          - name: EXECUTING
+            pos: 15
+            access: rw
+            desc: >
+              Set this to 1 to when executing a command, it will reset itself to
+              0 when the command has finished executing.
+          - pos: 11
+            access: ?w
+            desc: >
+              Set this to zero when executing TRANSFER_STOP or one when
+              executing READ_MULTIPLE_BLOCKS.
+          - name: COMMAND
+            low: 0
+            high: 7
+            desc: >
+              The command according to the MMC spec.
+      - type: register
+        name: CMD_ARG
+        brief: MMC Command Argument
+        offset: 0x4
+        desc: >
+            The command argument should be written here before the command is
+            written to 0x0.
+      - type: register
+        name: STATUS
+        offset: 0x20
+        bitset:
+          - low: 1
+            high: 31
+            desc: >
+              Bits 7:5 and 3 are sometimes returned from a function
+          - name: FIFO_STATUS
+            pos: 0
+            access: r
+            desc: >
+              Set when there is data in the FIFO (DATA register).
+      - type: register
+        name: DATA
+        offset: 0x40
+        desc: >
+          Data from the MMC card can be read from this FIFO 4 bytes at a time.
