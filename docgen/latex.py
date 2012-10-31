@@ -8,13 +8,14 @@ latex_template = """
 \\usepackage[utf8]{inputenc}
 
 \\usepackage{bytefield}
+\\usepackage{hyperref}
 
 \\title{Totally Unofficial VideoCore MMIO Reference}
 \\author{}
 
 \\begin{document}
 
-\maketitle
+\\maketitle
 
 \\tableofcontents
 
@@ -54,11 +55,11 @@ latex_region_template = """
 
 \\subsection{Overview}
 
-\\paragraph{Description:}
+\\subsubsection*{Description:}
 
 $REGION_DESC
 
-\\paragraph{Registers:}
+\\subsubsection*{Registers:}
 
 \\begin{center}
 \\begin{tabular}{|l|l|l|l|}
@@ -72,7 +73,7 @@ $REGISTER_TABLE_ENTRIES
 
 \\subsection{Registers}
 
-REGISTERS
+$REGISTERS
 
 """
 
@@ -80,12 +81,30 @@ latex_register_table_template = """
 \\texttt{$REGISTER_ADDRESS} & $REGISTER_ACCESS & \\texttt{$REGISTER_NAME} &
 $REGISTER_BRIEF \\\\"""
 
+latex_register_template = """
+\\subsubsection*{$REGISTER_NAME: $REGISTER_BRIEF}
+
+$REGISTER_DESC
+"""
+
 def escapeLatex(text):
     return text.replace('_', '\\_')
 
 def generateRegisterTable(group):
     text = ''
     template = string.Template(latex_register_table_template)
+    for reg in group.registers:
+        regdict = dict(REGISTER_ADDRESS=hex(reg.offset),
+                       REGISTER_ACCESS=escapeLatex(reg.access),
+                       REGISTER_NAME=escapeLatex(reg.name),
+                       REGISTER_BRIEF=escapeLatex(reg.brief),
+                       REGISTER_DESC=escapeLatex(reg.desc))
+        text += template.substitute(regdict)
+    return text;
+
+def generateRegisterDocumentation(group):
+    text = ''
+    template = string.Template(latex_register_template)
     for reg in group.registers:
         regdict = dict(REGISTER_ADDRESS=hex(reg.offset),
                        REGISTER_ACCESS=escapeLatex(reg.access),
@@ -116,7 +135,8 @@ def generateRegionDocumentation(db):
                          REGION_NAME=escapeLatex(group.name),
                          REGION_BRIEF=escapeLatex(group.brief),
                          REGION_DESC=escapeLatex(group.desc),
-                         REGISTER_TABLE_ENTRIES=generateRegisterTable(group))
+                         REGISTER_TABLE_ENTRIES=generateRegisterTable(group),
+                         REGISTERS=generateRegisterDocumentation(group))
         text += template.substitute(groupdict)
     return text;
 

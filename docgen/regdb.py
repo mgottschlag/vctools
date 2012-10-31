@@ -57,14 +57,15 @@ class RegisterDatabase:
             prefix = ''
         else:
             prefix = name
-        if 'content' in dblist:
-            for child in dblist['content']:
-                if not 'type' in child:
-                    continue
-                if child['type'] == 'group':
-                    self._parseGroup(child, prefix, group.offset)
-                if child['type'] == 'register':
-                    self._parseRegister(child, group, prefix, group.offset)
+        if 'blocks' in dblist:
+            for choffset, child in dblist['blocks'].iteritems():
+                self._parseGroup(child, prefix, group.offset + choffset)
+                pass
+        if 'registers' in dblist:
+            for choffset, child in dblist['registers'].iteritems():
+                self._parseRegister(child, group, prefix,
+                                    group.offset + choffset)
+                pass
         # Sort the registers by offset
         # TODO
         # Skip empty groups
