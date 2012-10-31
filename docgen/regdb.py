@@ -14,6 +14,8 @@ class RegisterGroup:
 
 class Register:
     """Class which contains information about a single register"""
+    def __init__(self):
+        self.bits = []
     name = ''
     offset = 0
     brief = ''
@@ -22,6 +24,14 @@ class Register:
     array = False
     count = 1
     stride = 0
+
+class Bitfield:
+    low = 0
+    high = 0
+    access = '?'
+    name = ''
+    brief = ''
+    desc = ''
 
 class ArrayInfo:
     count = 1
@@ -88,7 +98,6 @@ class RegisterDatabase:
         group.registers = sorted(group.registers,
                                  key=lambda register: register.offset)
         # Skip empty groups
-        print(len(group.registers))
         if parent is None and (len(group.registers) != 0
                                or group.brief != ''
                                or group.desc != ''):
@@ -108,7 +117,6 @@ class RegisterDatabase:
         if 'register' in dblist:
             # TODO
             pass
-        # TODO
         pass
 
     def _parseRegister(self, dblist, group, prefix, offset, parent, array_info):
@@ -138,6 +146,37 @@ class RegisterDatabase:
             parent.registers.append(register)
         else:
             group.registers.append(register)
-        # TODO
-        print('register: ' + register.name)
+        # Parse the bitfields
+        if 'bits' in dblist:
+            self._parseBitfields(dblist['bits'], register)
+        # If no bitfields are present, create one large field
+        if len(register.bits) == 0:
+            bitfield = Bitfield()
+            bitfield.low = 0
+            bitfield.high = 31
+            register.bits.append(bitfield)
+        register.bits = sorted(register.bits,
+                               key=lambda bitfield: bitfield.low)
 
+    def _parseBitfields(self, dblist, register):
+        for bitrange, entry in dblist.iteritems():
+            bitfield = Bitfield()
+            if type(bitrange) is int:
+                bitfield.high = bitfield.low = bitrange
+            else:
+                words = bitrange.split('-')
+                if not len(words) == 2:
+                    print("Warning: Invalid bit range specification.")
+                    return
+                bitfield.high = max(int(words[0]), int(words[1]))
+                bitfield.low = min(int(words[0]), int(words[1]))
+            if 'name' in entry:
+                bitfield.name = entry['name']
+            else:
+                bitfield.name = 'UNK_' + str(bitfield.low)
+            if 'brief' in entry:
+                bitfield.brief = entry['brief']
+            if 'desc' in entry:
+                bitfield.desc = entry['desc']
+            register.bits.append(bitfield)
+            pass

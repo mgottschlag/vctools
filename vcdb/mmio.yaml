@@ -75,16 +75,16 @@ blocks:
                 31:
                   name: RESET
                   access: w
-                31:
+                30:
                   name: ABORT
                   access: w
-                31:
+                29:
                   name: DISDEBUG
                   access: rw
-                31:
+                28:
                   name: WAIT
                   access: rw
-                23-29:
+                23-20:
                   name: PANIC_PRIO
                   access: rw
                 19-16:

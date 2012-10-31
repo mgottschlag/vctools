@@ -7,8 +7,9 @@ latex_template = """
 \\documentclass[a4paper,10pt]{scrreprt}
 \\usepackage[utf8]{inputenc}
 
-\\usepackage{bytefield}
+\\usepackage[endianness=big]{bytefield}
 \\usepackage{hyperref}
+\\usepackage{fullpage}
 
 \\title{Totally Unofficial VideoCore MMIO Reference}
 \\author{}
@@ -85,10 +86,42 @@ latex_register_template = """
 \\subsubsection*{$REGISTER_NAME: $REGISTER_BRIEF}
 
 $REGISTER_DESC
+
+\\begin{center}
+\\begin{bytefield}[rightcurly=., rightcurlyspace=0pt]{32}
+$BITFIELD_DIAGRAM
+\\end{bytefield}
+\\end{center}
+
+
+
+BITFIELDTABLE
 """
 
 def escapeLatex(text):
     return text.replace('_', '\\_')
+
+def generateBitfieldDiagram(reg):
+    header = '\\bitheader{'
+    lastbit = 0
+    content = ''
+    for bitfield in reg.bits:
+        low = bitfield.low
+        high = bitfield.high
+        header += str(low) + ', ' + str(high) + ', '
+        if low > lastbit:
+            # Insert a filler bitfield
+            content = '\\bitbox{' + str(low - lastbit) + '}{}' + content
+        size = high - low + 1
+        label = escapeLatex(bitfield.name[0:size])
+        content = '\\bitbox{' + str(size) + '}{' + label + '}\n' + content
+        lastbit = high + 1
+    if lastbit != 32:
+        content = '\\bitbox{' + str(32 - lastbit) + '}{}' + content
+    header += '0, 31'
+    header += '}\\\\'
+    content += '\\\\'
+    return header + content
 
 def generateRegisterAddress(reg):
     if not reg.array:
@@ -124,7 +157,8 @@ def generateRegisterDocumentation(group):
                        REGISTER_ACCESS=escapeLatex(reg.access),
                        REGISTER_NAME=generateRegisterName(reg),
                        REGISTER_BRIEF=escapeLatex(reg.brief),
-                       REGISTER_DESC=escapeLatex(reg.desc))
+                       REGISTER_DESC=escapeLatex(reg.desc),
+                       BITFIELD_DIAGRAM=generateBitfieldDiagram(reg))
         text += template.substitute(regdict)
     return text;
 
