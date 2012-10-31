@@ -1,5 +1,4 @@
 ---
-type: group
 name: VC_MMIO
 offset: 0x7e000000
 bare: yes
@@ -51,3 +50,67 @@ blocks:
         offset: 0x40
         desc: >
           Data from the MMC card can be read from this FIFO 4 bytes at a time.
+
+  0x7000:
+    name: DMA
+    brief: DMA Controller (Channels 0-14)
+    size: 0x1000
+    arrays:
+      0x0:
+        name: CHAN_${n}
+        length: 15
+        stride: 0x100
+        expand_doc: no
+        block: &DMA_CHANNEL
+          brief: DMA channel register set
+          size: 0x100
+          desc: >
+            Registers to control operation of one single DMA channel.
+          registers:
+            0x0:
+              name: CS
+              brief: Control and Status
+              access: rw
+              bits:
+                31:
+                  name: RESET
+                  access: w
+                31:
+                  name: ABORT
+                  access: w
+                31:
+                  name: DISDEBUG
+                  access: rw
+                31:
+                  name: WAIT
+                  access: rw
+                23-29:
+                  name: PANIC_PRIO
+                  access: rw
+                19-16:
+                  name: PRIORITY
+                  access: rw
+                8:
+                  name: ERROR
+                  access: r
+                6:
+                  name: WAIT_STATUS
+                  access: r
+                5:
+                  name: DREQ_STOPS_DMA
+                  access: r
+                4:
+                  name: PAUSED
+                  access: r
+                3:
+                  name: DREQ
+                  access: r
+                2:
+                  name: INT
+                  access: rw
+                1:
+                  name: END
+                  access: rw
+                0:
+                  name: ACTIVE
+                  access: rw

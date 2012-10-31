@@ -90,13 +90,27 @@ $REGISTER_DESC
 def escapeLatex(text):
     return text.replace('_', '\\_')
 
+def generateRegisterAddress(reg):
+    if not reg.array:
+        return hex(reg.offset)
+    else:
+        return hex(reg.offset) + '+i*' + hex(reg.stride)
+
+def generateRegisterName(reg):
+    if not reg.array:
+        return escapeLatex(reg.name)
+    else:
+        template = string.Template(reg.name)
+        name = template.substitute(n='[0-' + str(reg.count) + ']')
+        return escapeLatex(name)
+
 def generateRegisterTable(group):
     text = ''
     template = string.Template(latex_register_table_template)
     for reg in group.registers:
-        regdict = dict(REGISTER_ADDRESS=hex(reg.offset),
+        regdict = dict(REGISTER_ADDRESS=generateRegisterAddress(reg),
                        REGISTER_ACCESS=escapeLatex(reg.access),
-                       REGISTER_NAME=escapeLatex(reg.name),
+                       REGISTER_NAME=generateRegisterName(reg),
                        REGISTER_BRIEF=escapeLatex(reg.brief),
                        REGISTER_DESC=escapeLatex(reg.desc))
         text += template.substitute(regdict)
@@ -106,9 +120,9 @@ def generateRegisterDocumentation(group):
     text = ''
     template = string.Template(latex_register_template)
     for reg in group.registers:
-        regdict = dict(REGISTER_ADDRESS=hex(reg.offset),
+        regdict = dict(REGISTER_ADDRESS=generateRegisterAddress(reg),
                        REGISTER_ACCESS=escapeLatex(reg.access),
-                       REGISTER_NAME=escapeLatex(reg.name),
+                       REGISTER_NAME=generateRegisterName(reg),
                        REGISTER_BRIEF=escapeLatex(reg.brief),
                        REGISTER_DESC=escapeLatex(reg.desc))
         text += template.substitute(regdict)
