@@ -12,6 +12,10 @@ latex_template = """
 \\usepackage{fullpage}
 \\usepackage{tabularx}
 
+\\makeatletter
+\\newcommand\\cellwidth{\\TX@col@width}
+\\makeatother
+
 \\title{Totally Unofficial VideoCore MMIO Reference}
 \\author{}
 
@@ -151,6 +155,16 @@ def generateBitfieldDiagram(reg):
     content += '\\\\'
     return header + content
 
+def generateValueTable(values):
+    text = '{\\begin{tabularx}{\\cellwidth}{|l|l|X|}\n\\hline\n'
+    text += 'Value & Name & Description \\\\\n\\hline\n'
+    for value in values:
+        text += hex(value.value) + ' & '
+        text += escapeLatex(value.name) + ' & '
+        text += escapeLatex(value.desc) + ' \\\\\n\\hline\n'
+    text += '\\end{tabularx}}\n'
+    return text
+
 def generateBitfieldTable(reg):
     text = ''
     for bitfield in reg.bits:
@@ -162,6 +176,8 @@ def generateBitfieldTable(reg):
             text += str(high) + '-' + str(low)
         text += ' & ' + escapeLatex(bitfield.name)
         text += ' & ' + escapeLatex(bitfield.desc)
+        if len(bitfield.values) != 0:
+            text += '\n' + generateValueTable(bitfield.values)
         text += ' & ' + formatAccess(bitfield.access) + ' \\\\\n\\hline\n'
     return text
 

@@ -93,6 +93,15 @@ blocks:
                 8:
                   name: ERROR
                   access: r
+                  desc: >
+                    Indicates whether the DMA channel has detected an error.
+                  values:
+                    1:
+                      name: ERROR
+                      desc: An error flag is set.
+                    0:
+                      name: OK
+                      desc: The channel is ok.
                 6:
                   name: WAIT_STATUS
                   access: r

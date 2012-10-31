@@ -16,6 +16,7 @@ class Register:
     """Class which contains information about a single register"""
     def __init__(self):
         self.bits = []
+        self.values = []
     name = ''
     offset = 0
     brief = ''
@@ -26,6 +27,8 @@ class Register:
     stride = 0
 
 class Bitfield:
+    def __init__(self):
+        self.values = []
     low = 0
     high = 0
     access = '?'
@@ -36,6 +39,11 @@ class Bitfield:
 class ArrayInfo:
     count = 1
     stride = 0
+
+class RegisterValue:
+    value = 0
+    name = ''
+    desc = ''
 
 class RegisterDatabase:
     """Class which parses a register database file"""
@@ -183,5 +191,19 @@ class RegisterDatabase:
                 bitfield.desc = entry['desc']
             if 'access' in entry:
                 bitfield.access = entry['access']
+            if 'values' in entry:
+                bitfield.values = self._parseValues(entry['values'])
             register.bits.append(bitfield)
             pass
+
+    def _parseValues(self, dblist):
+        values = []
+        for num_value, entry in dblist.iteritems():
+            value = RegisterValue()
+            value.value = num_value
+            if 'name' in entry:
+                value.name = entry['name']
+            if 'desc' in entry:
+                value.desc = entry['desc']
+            values.append(value)
+        return values
