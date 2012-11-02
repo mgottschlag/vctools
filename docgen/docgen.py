@@ -26,7 +26,7 @@ if not args.md and not args.latex:
     quit()
 
 # Load the file and generate the documentation
-db = regdb.RegisterDatabase(args.vcdb + '/regdb.yaml')
+db = regdb.RegisterDatabase(args.vcdb + '/_regdb.yaml')
 
 if args.md:
     print("Generating markdown...")
