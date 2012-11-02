@@ -26,12 +26,12 @@ if not args.md and not args.latex:
     quit()
 
 # Load the file and generate the documentation
-db = regdb.RegisterDatabase(args.vcdb + '/mmio.yaml')
+db = regdb.RegisterDatabase(args.vcdb + '/regdb.yaml')
 
 if args.md:
     print("Generating markdown...")
-    generateMarkdown(db, args.output + "/vcmmio.md", args.vcdb)
+    generateMarkdown(db, args.output + "/vcregs.md", args.vcdb)
 if args.latex:
     print("Generating LaTeX source...")
-    latex.generateLatex(db, args.output + "/vcmmio.tex", args.vcdb)
+    latex.generateLatex(db, args.output + "/vcregs.tex", args.vcdb)
 print("Done.")
