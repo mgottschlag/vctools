@@ -1,0 +1,6 @@
+---
+name: PM
+brief: Power Management
+size: 0x1000
+desc: >
+  Reset Controller and Watchdog registers.

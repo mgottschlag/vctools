@@ -1,0 +1,6 @@
+---
+name: DSI
+brief: Display Serial Interface
+size: 0x1000
+desc: >
+  TBD

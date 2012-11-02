@@ -1,0 +1,104 @@
+---
+name: VC_REGS
+offset: 0x7e000000
+bare: yes
+hide: yes
+blocks:
+  0x0:
+    file: mult.yaml
+  0x1000:
+    file: ccpt.yaml
+  0x2000:
+    file: inte.yaml
+  0x3000:
+    file: time.yaml
+  0x4000:
+    file: txp.yaml
+  0x5000:
+    file: jpeg.yaml
+  0x6000:
+    file: mphi.yaml
+  0x7000:
+    file: dma.yaml
+  0x9000:
+    file: arba.yaml
+  0xa000:
+    file: brdg.yaml
+  0xb000:
+    file: armcb.yaml
+  0x100000:
+    file: pm.yaml
+  0x101000:
+    file: cm.yaml
+  0x102000:
+    file: a2w.yaml
+  0x103000:
+    file: avs.yaml
+  0x104000:
+    file: rng.yaml
+  0x200000:
+    file: gpio.yaml
+  0x201000:
+    file: uart0.yaml
+  0x202000:
+    file: altmmc.yaml
+  0x203000:
+    file: pcm.yaml
+  0x204000:
+    file: spi0.yaml
+  0x205000:
+    file: bsc0.yaml
+  0x206000:
+    file: pixv.yaml
+  0x208000:
+    file: dpi.yaml
+  0x209000:
+    file: dsi.yaml
+  0x20c000:
+    file: pwm0.yaml
+  0x20d000:
+    file: perm.yaml
+  0x20e000:
+    file: tec.yaml
+  0x20f000:
+    file: otp0.yaml
+  0x210000:
+    file: slim.yaml
+  0x211000:
+    file: cpg.yaml
+  0x212000:
+    file: unk212000.yaml
+  0x213000:
+    file: avsp.yaml
+  0x214000:
+    file: unk214000.yaml
+  0x215000:
+    file: aux0.yaml
+  0x300000:
+    file: emmc.yaml
+  0x400000:
+    file: ddrv.yaml
+  0x600000:
+    file: smi.yaml
+  0x804000:
+    file: bsc1.yaml
+  0x805000:
+    file: bsc2.yaml
+  0x980000:
+    file: usb.yaml
+  0xe00000:
+    file: sdco.yaml
+  0xe01000:
+    file: l2cc.yaml
+  0xe02000:
+    file: l1cc.yaml
+  0xe04000:
+    file: arbr.yaml
+  0xe05000:
+    file: dma15.yaml
+  0xe06000:
+    file: unke06000.yaml
+  0xe07000:
+    file: dcrc.yaml
+  0xe08000:
+    file: axip.yaml

@@ -1,0 +1,6 @@
+---
+name: SDCO
+brief: DRAM Controller (?)
+size: 0x1000
+desc: >
+  TBD

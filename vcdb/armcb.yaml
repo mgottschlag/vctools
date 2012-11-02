@@ -1,0 +1,6 @@
+---
+name: ARMCB
+brief: ARM Control Block
+size: 0x1000
+desc: >
+  TBD

@@ -1,0 +1,6 @@
+---
+name: OTP0
+brief: One Time Programmable Memory
+size: 0x1000
+desc: >
+  TBD. Not accessible via the ARM core.

@@ -1,0 +1,6 @@
+---
+name: AUX0
+brief: Auxiliaries
+size: 0x1000
+desc: >
+  UART1, SPI1 and SPI2

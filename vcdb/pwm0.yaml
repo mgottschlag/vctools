@@ -1,0 +1,6 @@
+---
+name: PWM0
+brief: Pulse Width Modulator
+size: 0x1000
+desc: >
+  TBD

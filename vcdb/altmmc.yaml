@@ -1,0 +1,48 @@
+---
+name: ALTMMC
+brief: Alternate MMC
+size: 0x1000
+desc: >
+  Alternate interface to MMC/SD cards. This is used by bootcode.bin to load the
+  next executable from the SD card.
+registers:
+  0x0:
+    name: CMD
+    brief: MMC Command
+    desc: TBD
+    bits:
+      15:
+        name: EXECUTING
+        access: rw
+        desc: >
+          Set this to 1 to when executing a command, it will reset itself to 0
+          when the command has finished executing.
+      11:
+        access: ?w
+        desc: >
+          Set this to zero when executing TRANSFER_STOP or one when executing
+          READ_MULTIPLE_BLOCKS.
+      7-0:
+        name: COMMAND
+        desc: >
+          The command according to the MMC spec.
+  0x4:
+    name: CMD_ARG
+    brief: MMC Command Argument
+    desc: >
+        The command argument should be written here before the command is
+        written to 0x0.
+  0x20:
+    name: STATUS
+    bits:
+      31-1:
+        desc: Bits 7:5 and 3 are sometimes returned from a function
+      0:
+        name: FIFO_STATUS
+        access: r
+        desc: Set when there is data in the FIFO (DATA register).
+  0x40:
+    name: DATA
+    offset: 0x40
+    desc: >
+      Data from the MMC card can be read from this FIFO 4 bytes at a time.

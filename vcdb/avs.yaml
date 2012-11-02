@@ -1,0 +1,6 @@
+---
+name: AVS
+brief: Audio Video Standard
+size: 0x1000
+desc: >
+  TBD (http://en.wikipedia.org/wiki/Audio_Video_Standard)

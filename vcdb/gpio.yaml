@@ -1,0 +1,6 @@
+---
+name: GPIO
+brief: General Purpose IO
+size: 0x1000
+desc: >
+  TBD

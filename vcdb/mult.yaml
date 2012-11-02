@@ -1,0 +1,6 @@
+---
+name: MULT
+brief: Multicore Sync Block
+size: 0x1000
+desc: >
+  Found in "platform.h". This region is abused as "Fake framebuffer device".
