@@ -2,10 +2,7 @@
 import argparse
 import regdb
 import latex
-
-def generateMarkdown(db, filename, vcdbdir):
-    # TODO
-    pass
+import markdown
 
 # Parse the commandline arguments
 argparser = argparse.ArgumentParser(
@@ -30,7 +27,7 @@ db = regdb.RegisterDatabase(args.vcdb + '/_regdb.yaml')
 
 if args.md:
     print("Generating markdown...")
-    generateMarkdown(db, args.output + "/vcregs.md", args.vcdb)
+    markdown.generateMarkdown(db, args.output + "/vcregs.md", args.vcdb)
 if args.latex:
     print("Generating LaTeX source...")
     latex.generateLatex(db, args.output + "/vcregs.tex", args.vcdb)
