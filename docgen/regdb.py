@@ -1,5 +1,6 @@
 
 import yaml
+import os.path
 
 class RegisterGroup:
     """Class which contains information about one group of registers"""
@@ -49,18 +50,24 @@ class RegisterDatabase:
     """Class which parses a register database file"""
 
     groups = []
+    directory = ''
 
     def __init__(self, filename):
+        self.directory = os.path.dirname(filename)
         # Open the YAML file
-        mmiofile = file(filename, 'r')
-        mmio = yaml.load(mmiofile)
+        regdbfile = file(filename, 'r')
+        regdb = yaml.load(regdbfile)
         # Read the data
-        self._parseGroup(mmio, '', 0, None, None)
+        self._parseGroup(regdb, '', 0, None, None)
         # Sort the groups by offset
         self.groups = sorted(self.groups,
                              key=lambda group: group.offset)
 
     def _parseGroup(self, dblist, prefix, offset, parent, array_info):
+        # Check whether this is a link to a different file
+        while 'file' in dblist:
+            dbfile = file(self.directory + '/' + dblist['file'], 'r')
+            dblist = yaml.load(dbfile)
         # Create the group
         # TODO: Anonymous groups?
         if prefix != '' and 'name' in dblist:
@@ -82,6 +89,9 @@ class RegisterDatabase:
             group.brief = dblist['brief']
         if 'desc' in dblist:
             group.desc = dblist['desc']
+        hide_group = False
+        if 'hide' in dblist:
+            hide_group = dblist['hide']
         # Create all registers and subgroups in the group
         if 'bare' in dblist and dblist['bare']:
             prefix = ''
@@ -105,10 +115,8 @@ class RegisterDatabase:
         # Sort the registers by offset
         group.registers = sorted(group.registers,
                                  key=lambda register: register.offset)
-        # Skip empty groups
-        if parent is None and (len(group.registers) != 0
-                               or group.brief != ''
-                               or group.desc != ''):
+        # Skip hidden groups
+        if parent is None and hide_group == False:
             self.groups.append(group)
 
     def _parseArray(self, dblist, group, prefix, offset, parent, array_info):
