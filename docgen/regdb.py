@@ -136,20 +136,19 @@ class RegisterDatabase:
         pass
 
     def _parseRegister(self, dblist, group, prefix, offset, parent, array_info):
+        if dblist == None:
+            dblist = {}
         # Create the register
-        localoffset = 0
-        if 'offset' in dblist:
-            localoffset = dblist['offset']
         if 'name' in dblist:
-            localname = dblist['name']
+            name = dblist['name']
         else:
-            localname = "UNK_" + hex(localoffset)
+            name = "UNK_" + hex(offset - group.offset)
         register = Register()
-        register.offset = offset + localoffset
+        register.offset = offset
         if prefix != '':
-            register.name = prefix + '_' + localname
+            register.name = prefix + '_' + name
         else:
-            register.name = localname
+            register.name = name
         if 'brief' in dblist:
             register.brief = dblist['brief']
         if 'desc' in dblist:
