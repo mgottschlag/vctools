@@ -7,6 +7,8 @@ latex_template = """
 \\documentclass[a4paper,10pt]{scrreprt}
 \\usepackage[utf8]{inputenc}
 
+\\sloppy
+
 \\usepackage[endianness=big]{bytefield}
 \\usepackage{hyperref}
 \\usepackage{fullpage}
@@ -32,7 +34,7 @@ latex_template = """
 TBD: What is this document?
 
 This document was automatically generated on $DATE from the videocore
-register database, version $VERSION.
+register database, git commit $VERSION.
 
 \\chapter{Register Documentation}
 
@@ -106,16 +108,20 @@ $BITFIELD_DIAGRAM
 \\end{bytefield}
 \\end{center}
 
+$BITFIELD_TABLE
+
+"""
+
+bitfield_table_header = """
 \\begin{center}
 \\begin{tabularx}{\\textwidth}{|l|l|X|l|}
 \\hline
 Bits & Name & Description & Access\\\\
-\\hline
-$BITFIELD_TABLE
-\\end{tabularx}
-\\end{center}
+\\hline"""
 
-"""
+bitfield_table_footer = """
+\\end{tabularx}
+\\end{center}"""
 
 def escapeLatex(text):
     return text.replace('_', '\\_')
@@ -149,7 +155,11 @@ def generateBitfieldDiagram(reg):
         content = '\\bitbox{' + str(size) + '}{' + label + '}\n' + content
         lastbit = high + 1
     if lastbit != 32:
-        content = '\\bitbox{' + str(32 - lastbit) + '}{}' + content
+        if len(reg.bits) == 0:
+            content = ('\\bitbox{' + str(32 - lastbit) + '}{' +
+                       escapeLatex(reg.name) + '}' + content)
+        else:
+            content = '\\bitbox{' + str(32 - lastbit) + '}{}' + content
     header += '0, 31'
     header += '}\\\\'
     content += '\\\\'
@@ -166,7 +176,9 @@ def generateValueTable(values):
     return text
 
 def generateBitfieldTable(reg):
-    text = ''
+    if len(reg.bits) == 0:
+        return ''
+    text = bitfield_table_header
     for bitfield in reg.bits:
         low = bitfield.low
         high = bitfield.high
@@ -179,6 +191,7 @@ def generateBitfieldTable(reg):
         if len(bitfield.values) != 0:
             text += '\n' + generateValueTable(bitfield.values)
         text += ' & ' + formatAccess(bitfield.access) + ' \\\\\n\\hline\n'
+    text += bitfield_table_footer
     return text
 
 
@@ -266,5 +279,4 @@ def generateLatex(db, filename, vcdbdir):
     text = string.Template(latex_template).substitute(global_dict)
     with open(filename, 'w') as f:
         f.write(text)
-    # TODO
     pass

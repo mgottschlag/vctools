@@ -52,9 +52,14 @@ $REGISTER_DESC
 
 #### Details ####
 
-<table>
-<tr><th>Bits</th><th>Name</th><th>Description</th><th>Access</th></tr>
 $BITFIELD_TABLE
+"""
+
+bitfield_table_header = """
+<table>
+<tr><th>Bits</th><th>Name</th><th>Description</th><th>Access</th></tr>"""
+
+bitfield_table_footer = """
 </table>"""
 
 def formatAccess(access):
@@ -82,7 +87,9 @@ def generateValueTable(values):
     return text
 
 def generateBitfieldTable(reg):
-    text = ''
+    if len(reg.bits) == 0:
+        return ''
+    text = bitfield_table_header
     for bitfield in reg.bits:
         text += '<tr><td>'
         low = bitfield.low
@@ -96,6 +103,7 @@ def generateBitfieldTable(reg):
         if len(bitfield.values) != 0:
             text += '\n' + generateValueTable(bitfield.values)
         text += '</td><td>' + formatAccess(bitfield.access) + '</td></tr>'
+    text += bitfield_table_footer
     return text
 
 def generateRegisterAddress(reg):

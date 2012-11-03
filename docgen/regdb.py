@@ -166,13 +166,6 @@ class RegisterDatabase:
         # Parse the bitfields
         if 'bits' in dblist:
             self._parseBitfields(dblist['bits'], register)
-        # If no bitfields are present, create one large field
-        if len(register.bits) == 0:
-            bitfield = Bitfield()
-            bitfield.low = 0
-            bitfield.high = 31
-            bitfield.name = register.name
-            register.bits.append(bitfield)
         register.bits = sorted(register.bits,
                                key=lambda bitfield: bitfield.low)
 
