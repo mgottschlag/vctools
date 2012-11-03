@@ -1,6 +1,6 @@
 ---
 name: L1CC
-brief: Level 1 Cache Controller (?)
+brief: Level 1 Cache Controller
 size: 0x1000
 desc: >
   TBD

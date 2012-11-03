@@ -3,7 +3,8 @@ name: DMA
 brief: DMA0-14
 size: 0x1000
 desc: >
-  TBD
+  TBD. This is very imcomplete, the official bcm2835 documentation contains a
+  complete overview!
 arrays:
   0x0:
     name: CHAN_${n}

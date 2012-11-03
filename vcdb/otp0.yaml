@@ -2,5 +2,24 @@
 name: OTP0
 brief: One Time Programmable Memory
 size: 0x1000
-desc: >
-  TBD. Not accessible via the ARM core.
+desc: |
+  Not accessible via the ARM core.
+
+  This is an (undocumented) interface to the OTP (unofficially codenamed Dragon)
+  used by bootcode.bin (and probably other parts of the bootchain.) It appears
+  to start repeating after the 128th word. 0x80 == 0x00, 0x81 = 0x01 and so
+  forth. This gives us an OTP storage of 128 words[32 bit] or 512 bytes.
+
+  Here is code for generating a bootcode.bin for dumping the contents of your
+  OTP over serial: https://gist.github.com/3972820.
+registers:
+  0x0:
+  0x4:
+  0x8:
+  0xc:
+  0x10:
+  0x14:
+  0x18:
+  0x1c:
+  0x20:
+  0x24:
