@@ -4,3 +4,25 @@ brief: VC Interrupt Controller
 size: 0x1000
 desc: >
   TBD
+registers:
+  0x0:
+  0x4:
+  0x8:
+  0xc:
+  0x10:
+  0x14:
+  0x18:
+  0x1c:
+  0x20:
+  0x24:
+  0x28:
+  0x2c:
+  0x30:
+    name: TABLE_PTR
+    brief: Interrupt table address
+    desc: >
+      Write the address of the interrupt vector here to enable interrupts.
+  0x34:
+  0x38:
+  0x40:
+  0x44:
