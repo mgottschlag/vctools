@@ -1,4 +1,4 @@
-
+#!/usr/bin/python
 import argparse
 import regdb
 import latex

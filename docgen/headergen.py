@@ -1,9 +1,10 @@
-
+#!/usr/bin/python
 import argparse
 import regdb
 import subprocess
 import datetime
 import string
+import decoder
 
 file_header = """
 /**
@@ -90,6 +91,9 @@ argparser.add_argument("vcdb", type=str,
 argparser.add_argument('output', type=str,
                        help='output directory in which generated files are placed')
 
+argparser.add_argument('-d', '--decoder', action="store_true",
+                       help='generate code for a register address/value decoder')
+
 args = argparser.parse_args()
 
 # Load the file and generate the documentation
@@ -97,4 +101,7 @@ db = regdb.RegisterDatabase(args.vcdb + '/_regdb.yaml')
 
 print("Generating the header...")
 generateHeader(db, args.output + "/vcregs.h", args.vcdb)
+if args.decoder:
+    print("Generating the decoder...")
+    decoder.generateDecoder(db, args.output, args.vcdb)
 print("Done.")
