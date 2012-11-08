@@ -1,5 +1,6 @@
 ---
 name: PIXV
+brief: Pixelvalue
 size: 0x2000
 desc: >
   TBD
