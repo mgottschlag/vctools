@@ -2,5 +2,114 @@
 name: CM
 brief: Clock Management
 size: 0x1000
-desc: >
-  TBD
+desc: |
+  The BCM2835 system has a number of clocks for the various components which are
+  driven either by a PLL or the external 19.2 MHz oscillator. Known clocks are
+  the core clock (CM_CORE), the system timer clock (PM_TIME) which controls the
+  speed of the system timer and the GPIO clocks which are documented in the
+  Raspberry Pi peripheral documentation. The interactions between the clocks are
+  mostly unknown. The core clock affects at least execution speed on the
+  videocore processor and the speed of the mini uart.
+arrays:
+  0x8:
+    name: CORE
+    length: 1
+    stride: 0x8
+    expand_doc: no
+    block: &CLOCK_CTL
+      brief: Clocks Control
+      size: 0x8
+      desc: >
+        Registers to control clock generation
+      registers:
+        0x0:
+          name: CTL
+          brief: Clock Control
+          access: rw
+          bits:
+            31-24: &PASSWD_FIELD
+              name: PASSWD
+              values:
+                0x5a:
+                  name: PASSWD
+            10-9:
+              name: MASH
+            8:
+              name: FLIP
+            7:
+              name: BUSY
+            5:
+              name: KILL
+            3-0:
+              name: SRC
+              values:
+                0:
+                  name: GND
+                1:
+                  name: OSC
+                  desc: External oscillator
+                4:
+                  name: PLLA
+                5:
+                  name: PLLC
+                6:
+                  name: PLLD
+                7:
+                  name: HDMI
+
+        0x4:
+          name: DIV
+          brief: Clock Divisor
+          desc: |
+            The resulting clock is the source divided by (DIVI + DIVF / 1024).
+          access: rw
+          bits:
+            31-24: *PASSWD_FIELD
+            23-12:
+              name: DIVI
+              desc: Integer part
+            11-0:
+              name: DIVF
+              desc: Fractional part
+  0x70:
+    name: GP${n}
+    length: 3
+    stride: 0x8
+    expand_doc: no
+    block: *CLOCK_CTL
+  0x90:
+    name: UNK_0x90
+    length: 1
+    stride: 0x8
+    expand_doc: no
+    block: *CLOCK_CTL
+  0xa0:
+    name: UNK_0xa0
+    length: 1
+    stride: 0x8
+    expand_doc: no
+    block: *CLOCK_CTL
+  0xa8:
+    name: UNK_0xa8
+    length: 1
+    stride: 0x8
+    expand_doc: no
+    block: *CLOCK_CTL
+  0xe8:
+    name: TIME
+    length: 1
+    stride: 0x8
+    expand_doc: no
+    block: *CLOCK_CTL
+  0x190:
+    name: UNK_0x190
+    length: 1
+    stride: 0x8
+    expand_doc: no
+    block: *CLOCK_CTL
+#   0x1a8:
+#     name: UNK_0x1a8
+#     length: 1
+#     stride: 0x8
+#     expand_doc: no
+#     block: *CLOCK_CTL

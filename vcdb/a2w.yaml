@@ -3,3 +3,31 @@ name: A2W
 size: 0x1000
 desc: >
   TBD
+registers:
+  0x20:
+    name: PLLC_MULT
+    brief: PLLC Multiplier
+    bits:
+      31-24: &PASSWD_FIELD
+        name: PASSWD
+        values:
+          0x5a:
+            name: PASSWD
+      11-0:
+        name: MULT
+  0x120:
+    name: PLLx_MULT
+    brief: Unknown PLL multiplier
+    desc: Multiplier of one of the other PLLs?
+    bits:
+      31-24: *PASSWD_FIELD
+      11-0:
+        name: MULT
+  0x620:
+    name: PLLx_DIV
+    brief: PLL divisor
+    desc: Divisor of PLLs, at least of PLLC
+    bits:
+      31-24: *PASSWD_FIELD
+      23-0:
+        name: DIV
