@@ -6,23 +6,43 @@ desc: >
   TBD
 registers:
   0x0:
+    type: UNKNOWN
   0x4:
+    type: UNKNOWN
   0x8:
+    type: UNKNOWN
   0xc:
+    type: UNKNOWN
   0x10:
+    type: UNKNOWN
   0x14:
+    type: UNKNOWN
   0x18:
+    type: UNKNOWN
   0x1c:
+    type: UNKNOWN
   0x20:
+    type: UNKNOWN
   0x24:
+    type: UNKNOWN
   0x28:
+    type: UNKNOWN
   0x2c:
+    type: UNKNOWN
   0x30:
     name: TABLE_PTR
     brief: Interrupt table address
     desc: >
       Write the address of the interrupt vector here to enable interrupts.
   0x34:
+    type: UNKNOWN
   0x38:
+    type: UNKNOWN
   0x40:
+    type: UNKNOWN
   0x44:
+    type: UNKNOWN
+types:
+  UNKNOWN:
+    name: UNKNOWN
+    brief: Unknown Registers

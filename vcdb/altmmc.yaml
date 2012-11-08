@@ -75,9 +75,11 @@ registers:
         access: r
         desc: Set when there is data in the FIFO (Data Register 0x40)
   0x24:
+    type: UNKNOWN
   0x28:
     desc: Set to 1
   0x2c:
+    type: UNKNOWN
   0x30:
     name: VDD
   0x34:
@@ -95,8 +97,15 @@ registers:
     desc: >
       Data from the MMC card can be read from this FIFO 4 bytes at a time.
   0x44:
+    type: UNKNOWN
   0x48:
+    type: UNKNOWN
   0x4c:
+    type: UNKNOWN
   0x50:
     name: HBLC
     brief: Blockcount
+types:
+  UNKNOWN:
+    name: UNKNOWN
+    brief: Unknown Registers

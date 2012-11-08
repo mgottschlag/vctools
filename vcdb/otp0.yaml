@@ -14,12 +14,26 @@ desc: |
   OTP over serial: https://gist.github.com/3972820.
 registers:
   0x0:
+    type: UNKNOWN
   0x4:
+    type: UNKNOWN
   0x8:
+    type: UNKNOWN
   0xc:
+    type: UNKNOWN
   0x10:
+    type: UNKNOWN
   0x14:
+    type: UNKNOWN
   0x18:
+    type: UNKNOWN
   0x1c:
+    type: UNKNOWN
   0x20:
+    type: UNKNOWN
   0x24:
+    type: UNKNOWN
+types:
+  UNKNOWN:
+    name: UNKNOWN
+    brief: Unknown Registers
