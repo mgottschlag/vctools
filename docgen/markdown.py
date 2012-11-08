@@ -42,13 +42,15 @@ markdown_register_table_template = """
 <tr><td>$REGISTER_ADDRESS</td><td>$REGISTER_ACCESS</td><td>$REGISTER_NAME</td><td>$REGISTER_BRIEF</td></tr>"""
 
 markdown_register_template = """
-### $REGISTER_NAME: $REGISTER_BRIEF ###
+### $REGISTER_TYPE_CAPTION ###
 
-Address: $REGISTER_ADDRESS
+<table>
+$REGISTER_TYPE_LIST
+</table>
 
 #### Description ####
 
-$REGISTER_DESC
+$REGISTER_TYPE_DESC
 
 #### Details ####
 
@@ -86,11 +88,11 @@ def generateValueTable(values):
     text += '</table>\n'
     return text
 
-def generateBitfieldTable(reg):
-    if len(reg.bits) == 0:
+def generateBitfieldTable(bits):
+    if len(bits) == 0:
         return ''
     text = bitfield_table_header
-    for bitfield in reg.bits:
+    for bitfield in bits:
         text += '<tr><td>'
         low = bitfield.low
         high = bitfield.high
@@ -119,29 +121,76 @@ def generateRegisterName(reg):
         template = string.Template(reg.name)
         return template.substitute(n='[0-' + str(reg.count - 1) + ']')
 
+#def generateRegisterTable(group):
+    #text = ''
+    #template = string.Template(markdown_register_table_template)
+    #for reg in group.registers:
+        #regdict = dict(REGISTER_ADDRESS=generateRegisterAddress(reg),
+                       #REGISTER_ACCESS=formatAccess(reg.access),
+                       #REGISTER_NAME=generateRegisterName(reg),
+                       #REGISTER_BRIEF=reg.brief,
+                       #REGISTER_DESC=reg.desc)
+        #text += template.substitute(regdict)
+    #return text;
+
+#def generateRegisterDocumentation(group):
+    #text = ''
+    #template = string.Template(markdown_register_template)
+    #for reg in group.registers:
+        #regdict = dict(REGISTER_ADDRESS=generateRegisterAddress(reg),
+                       #REGISTER_ACCESS=formatAccess(reg.access),
+                       #REGISTER_NAME=generateRegisterName(reg),
+                       #REGISTER_BRIEF=reg.brief,
+                       #REGISTER_DESC=reg.desc,
+                       #BITFIELD_TABLE=generateBitfieldTable(reg))
+        #text += template.substitute(regdict)
+    #return text;
+
 def generateRegisterTable(group):
     text = ''
     template = string.Template(markdown_register_table_template)
     for reg in group.registers:
         regdict = dict(REGISTER_ADDRESS=generateRegisterAddress(reg),
-                       REGISTER_ACCESS=formatAccess(reg.access),
+                       REGISTER_ACCESS=formatAccess(reg.regtype.access),
                        REGISTER_NAME=generateRegisterName(reg),
                        REGISTER_BRIEF=reg.brief,
-                       REGISTER_DESC=reg.desc)
+                       REGISTER_DESC=reg.regtype.desc)
         text += template.substitute(regdict)
     return text;
 
+def generateRegisterTypeDocumentation(regtype):
+    if regtype.brief != '':
+        caption = regtype.brief
+    else:
+        caption = ''
+    if len(regtype.registers) <= 4 or regtype.brief == '':
+        if regtype.brief != '':
+            caption += ' ('
+        caption += ', '.join(map(generateRegisterName, regtype.registers))
+        if regtype.brief != '':
+            caption += ')'
+
+    reglist = ''
+    for register in regtype.registers:
+        reglist += '<tr><td>'
+        reglist += generateRegisterAddress(register) + '</td><td>'
+        reglist += generateRegisterName(register) + '</td><td>'
+        reglist += register.brief + '</td></tr>\n'
+
+    template = string.Template(markdown_register_template)
+    regdict = dict(REGISTER_TYPE_CAPTION=caption,
+                   REGISTER_TYPE_LIST = reglist,
+                   REGISTER_TYPE_DESC=regtype.desc,
+                   BITFIELD_TABLE=generateBitfieldTable(regtype.bits))
+    return template.substitute(regdict)
+
 def generateRegisterDocumentation(group):
     text = ''
-    template = string.Template(markdown_register_template)
-    for reg in group.registers:
-        regdict = dict(REGISTER_ADDRESS=generateRegisterAddress(reg),
-                       REGISTER_ACCESS=formatAccess(reg.access),
-                       REGISTER_NAME=generateRegisterName(reg),
-                       REGISTER_BRIEF=reg.brief,
-                       REGISTER_DESC=reg.desc,
-                       BITFIELD_TABLE=generateBitfieldTable(reg))
-        text += template.substitute(regdict)
+    # Sort the register types by the address of the first register
+    regtypes = sorted(group.regtypes.values(),
+                      key=lambda k : k.registers[0].offset)
+    for regtype in regtypes:
+        text += generateRegisterTypeDocumentation(regtype)
     return text;
 
 def generateRegionTable(db):
@@ -193,4 +242,3 @@ def generateMarkdown(db, filename, vcdbdir):
     text = string.Template(markdown_template).substitute(global_dict)
     with open(filename, 'w') as f:
         f.write(text)
-    pass

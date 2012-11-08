@@ -7,6 +7,7 @@ class RegisterGroup:
 
     def __init__(self):
         self.registers = []
+        self.regtypes = {}
     name = ''
     offset = 0
     size = 0
@@ -16,16 +17,26 @@ class RegisterGroup:
 class Register:
     """Class which contains information about a single register"""
     def __init__(self):
-        self.bits = []
         self.values = []
     name = ''
     offset = 0
     brief = ''
-    desc = ''
-    access = '?'
     array = False
     count = 1
     stride = 0
+    regtype = None
+
+class RegisterType:
+    """Class which contains information about multiple equal registers"""
+    def __init__(self):
+        self.bits = []
+        self.registers = []
+
+    localname = ''
+    name = ''
+    brief = ''
+    desc = ''
+    access = '?'
 
 class Bitfield:
     def __init__(self):
@@ -68,8 +79,7 @@ class RegisterDatabase:
         while 'file' in dblist:
             dbfile = file(self.directory + '/' + dblist['file'], 'r')
             dblist = yaml.load(dbfile)
-        # Create the group
-        # TODO: Anonymous groups?
+        # Create the group name
         if prefix != '' and 'name' in dblist:
             name = prefix + '_' + dblist['name']
         elif prefix != '':
@@ -78,54 +88,71 @@ class RegisterDatabase:
             name = dblist['name']
         else:
             name = ''
-        group = RegisterGroup()
-        group.name = name
-        group.offset = offset
         if 'offset' in dblist:
-            group.offset += dblist['offset']
-        if 'size' in dblist:
-            group.size = dblist['size']
-        if 'brief' in dblist:
-            group.brief = dblist['brief']
-        if 'desc' in dblist:
-            group.desc = dblist['desc']
+            offset += dblist['offset']
+        # The "bare" flag defines whether entries will be prefixed
+        if 'bare' in dblist and dblist['bare']:
+            bare = True
+        else:
+            bare = False
         hide_group = False
         if 'hide' in dblist:
             hide_group = dblist['hide']
+        if parent is None and hide_group == False:
+            group = RegisterGroup()
+            group.name = name
+            group.offset = offset
+            if 'size' in dblist:
+                group.size = dblist['size']
+            if 'brief' in dblist:
+                group.brief = dblist['brief']
+            if 'desc' in dblist:
+                group.desc = dblist['desc']
+        else:
+            group = parent
         # Create all registers and subgroups in the group
         if 'bare' in dblist and dblist['bare']:
             prefix = ''
         else:
             prefix = name
 
+        if 'types' in dblist:
+            for typename, child in dblist['types'].iteritems():
+                regtype = self._parseType(child, group, prefix, '')
+                group.regtypes[typename] = regtype
         if 'blocks' in dblist:
             for choffset, child in dblist['blocks'].iteritems():
-                self._parseGroup(child, prefix, group.offset + choffset, parent,
+                self._parseGroup(child, prefix, offset + choffset, group,
                                  array_info)
         if 'registers' in dblist:
             for choffset, child in dblist['registers'].iteritems():
                 self._parseRegister(child, group, prefix,
-                                    group.offset + choffset, parent,
-                                    array_info)
+                                    offset + choffset, array_info)
         if 'arrays' in dblist:
             for choffset, child in dblist['arrays'].iteritems():
-                self._parseArray(child, group, prefix,
-                                 group.offset + choffset, parent,
-                                 array_info)
-        # Sort the registers by offset
-        group.registers = sorted(group.registers,
-                                 key=lambda register: register.offset)
+                if array_info != None:
+                    print("Warning: Nested arrays not supported yet!")
+                    continue
+                self._parseArray(child, group, prefix, group.offset + choffset)
         # Skip hidden groups
         if parent is None and hide_group == False:
             self.groups.append(group)
+            # Sort the registers by offset
+            group.registers = sorted(group.registers,
+                                    key=lambda register: register.offset)
+            for regtype in group.regtypes.values():
+                regtype.registers = sorted(regtype.registers,
+                                           key=lambda register: register.offset)
+            # Remove unused types
+            group.regtypes = dict((k, v) for k, v in group.regtypes.iteritems()
+                                             if len(v.registers) != 0)
 
-    def _parseArray(self, dblist, group, prefix, offset, parent, array_info):
-        if array_info != None:
-            print("Warning: Nested arrays not supported yet!")
-            return
-        array = ArrayInfo()
-        array.count = dblist['length']
-        array.stride = dblist['stride']
+    def _parseArray(self, dblist, group, prefix, offset):
+        array = None
+        if dblist['length'] != 1:
+            array = ArrayInfo()
+            array.count = dblist['length']
+            array.stride = dblist['stride']
         if 'name' in dblist:
             prefix = prefix + '_' + dblist['name']
         if 'block' in dblist:
@@ -135,7 +162,7 @@ class RegisterDatabase:
             pass
         pass
 
-    def _parseRegister(self, dblist, group, prefix, offset, parent, array_info):
+    def _parseRegister(self, dblist, group, prefix, offset, array_info):
         if dblist == None:
             dblist = {}
         # Create the register
@@ -151,28 +178,53 @@ class RegisterDatabase:
             register.name = name
         if 'brief' in dblist:
             register.brief = dblist['brief']
-        if 'desc' in dblist:
-            register.desc = dblist['desc']
-        if 'access' in dblist:
-            register.access = dblist['access']
         if (array_info != None and (array_info.count != 1 and
                                     not '${n}' in name and
                                     not '$n' in name)):
             register.array = True
             register.count = array_info.count
             register.stride = array_info.stride
-        if parent != None:
-            parent.registers.append(register)
+        # Parse the register format
+        if 'type' in dblist:
+            regtype = group.regtypes[dblist['type']]
+            regtype.registers.append(register)
         else:
-            group.registers.append(register)
+            regtype = self._parseType(dblist, group, prefix, name)
+            regtype.registers.append(register)
+            group.regtypes[name] = regtype
+        register.regtype = regtype
+        # Insert the register into the group
+        group.registers.append(register)
+
+    def _parseType(self, dblist, group, prefix, name):
+        if dblist == None:
+            dblist = {}
+        regtype = RegisterType()
+        if 'name' in dblist:
+            name = dblist['name']
+        regtype.localname = name
+        if prefix != '':
+            regtype.name = prefix + '_' + name
+        else:
+            regtype.name = name
+        regtype.name = regtype.name.replace('_${n}', '').replace('_$n', '')
+        regtype.name = regtype.name.replace('$n', '')
+        #print("Generating type " + regtype.name + " (" + regtype.localname + ")")
+        if 'brief' in dblist:
+            regtype.brief = dblist['brief']
+        if 'desc' in dblist:
+            regtype.desc = dblist['desc']
+        if 'access' in dblist:
+            regtype.access = dblist['access']
         # Parse the bitfields
         if 'bits' in dblist:
-            self._parseBitfields(dblist['bits'], register)
-        register.bits = sorted(register.bits,
-                               key=lambda bitfield: bitfield.low,
-                               reverse=True)
+            self._parseBitfields(dblist['bits'], regtype)
+        regtype.bits = sorted(regtype.bits,
+                              key=lambda bitfield: bitfield.low,
+                              reverse=True)
+        return regtype
 
-    def _parseBitfields(self, dblist, register):
+    def _parseBitfields(self, dblist, regtype):
         for bitrange, entry in dblist.iteritems():
             bitfield = Bitfield()
             if type(bitrange) is int:
@@ -196,7 +248,7 @@ class RegisterDatabase:
                 bitfield.access = entry['access']
             if 'values' in entry:
                 bitfield.values = self._parseValues(entry['values'])
-            register.bits.append(bitfield)
+            regtype.bits.append(bitfield)
             pass
 
     def _parseValues(self, dblist):

@@ -81,32 +81,28 @@ $REGISTER_TABLE_ENTRIES
 \\end{tabular}
 \\end{center}
 
-\\subsection{Registers}
-
 $REGISTERS
 
 """
 
 latex_register_table_template = """
-\\texttt{$REGISTER_ADDRESS} & $REGISTER_ACCESS & \\texttt{$REGISTER_NAME} &
+\\texttt{$REGISTER_ADDRESS} & $REGISTER_ACCESS & \\texttt{$REGISTER_NAME} & \
 $REGISTER_BRIEF \\\\"""
 
 latex_register_template = """
-\\subsubsection*{$REGISTER_NAME: $REGISTER_BRIEF}
+\\subsection{$REGISTER_TYPE_CAPTION}
 
-Address: $REGISTER_ADDRESS
-
-\\subsubsection*{Description:}
-
-$REGISTER_DESC
-
-\\subsubsection*{Content:}
+\\begin{tabular}{lll}
+$REGISTER_TYPE_LIST
+\\end{tabular}
 
 \\begin{center}
 \\begin{bytefield}[rightcurly=., rightcurlyspace=0pt]{32}
 $BITFIELD_DIAGRAM
 \\end{bytefield}
 \\end{center}
+
+$REGISTER_TYPE_DESC
 
 $BITFIELD_TABLE
 
@@ -139,11 +135,11 @@ def formatAccess(access):
         return 'R/?'
     return escapeLatex(access)
 
-def generateBitfieldDiagram(reg):
+def generateBitfieldDiagram(bits, name):
     header = '\\bitheader{'
     lastbit = 31
     content = ''
-    for bitfield in reg.bits:
+    for bitfield in bits:
         low = bitfield.low
         high = bitfield.high
         header += str(low) + ', ' + str(high) + ', '
@@ -155,9 +151,9 @@ def generateBitfieldDiagram(reg):
         content += '\\bitbox{' + str(size) + '}{' + label + '}\n'
         lastbit = low - 1
     if lastbit != 0:
-        if len(reg.bits) == 0:
+        if len(bits) == 0:
             content = ('\\bitbox{' + str(lastbit + 1) + '}{' +
-                       escapeLatex(reg.name) + '}' + content)
+                       escapeLatex(name) + '}' + content)
         else:
             content = '\\bitbox{' + str(lastbit + 1) + '}{}' + content
     header += '0, 31'
@@ -175,11 +171,11 @@ def generateValueTable(values):
     text += '\\end{tabularx}}\n'
     return text
 
-def generateBitfieldTable(reg):
-    if len(reg.bits) == 0:
+def generateBitfieldTable(bits):
+    if len(bits) == 0:
         return ''
     text = bitfield_table_header
-    for bitfield in reg.bits:
+    for bitfield in bits:
         low = bitfield.low
         high = bitfield.high
         if low == high:
@@ -214,25 +210,46 @@ def generateRegisterTable(group):
     template = string.Template(latex_register_table_template)
     for reg in group.registers:
         regdict = dict(REGISTER_ADDRESS=generateRegisterAddress(reg),
-                       REGISTER_ACCESS=formatAccess(reg.access),
+                       REGISTER_ACCESS=formatAccess(reg.regtype.access),
                        REGISTER_NAME=generateRegisterName(reg),
                        REGISTER_BRIEF=escapeLatex(reg.brief),
-                       REGISTER_DESC=escapeLatex(reg.desc))
+                       REGISTER_DESC=escapeLatex(reg.regtype.desc))
         text += template.substitute(regdict)
     return text;
 
+def generateRegisterTypeDocumentation(regtype):
+    if regtype.brief != '':
+        caption = escapeLatex(regtype.brief)
+    else:
+        caption = ''
+    if len(regtype.registers) <= 4 or regtype.brief == '':
+        if regtype.brief != '':
+            caption += ' ('
+        caption += ', '.join(map(generateRegisterName, regtype.registers))
+        if regtype.brief != '':
+            caption += ')'
+
+    reglist = ''
+    for register in regtype.registers:
+        reglist += generateRegisterAddress(register) + ' & '
+        reglist += '\\texttt{' + generateRegisterName(register) + '} & '
+        reglist += escapeLatex(register.brief) + ' \\\\\n'
+
+    template = string.Template(latex_register_template)
+    regdict = dict(REGISTER_TYPE_CAPTION=caption,
+                   REGISTER_TYPE_LIST = reglist,
+                   REGISTER_TYPE_DESC=escapeLatex(regtype.desc),
+                   BITFIELD_DIAGRAM=generateBitfieldDiagram(regtype.bits, regtype.name),
+                   BITFIELD_TABLE=generateBitfieldTable(regtype.bits))
+    return template.substitute(regdict)
+
 def generateRegisterDocumentation(group):
     text = ''
-    template = string.Template(latex_register_template)
-    for reg in group.registers:
-        regdict = dict(REGISTER_ADDRESS=generateRegisterAddress(reg),
-                       REGISTER_ACCESS=formatAccess(reg.access),
-                       REGISTER_NAME=generateRegisterName(reg),
-                       REGISTER_BRIEF=escapeLatex(reg.brief),
-                       REGISTER_DESC=escapeLatex(reg.desc),
-                       BITFIELD_DIAGRAM=generateBitfieldDiagram(reg),
-                       BITFIELD_TABLE=generateBitfieldTable(reg))
-        text += template.substitute(regdict)
+    # Sort the register types by the address of the first register
+    regtypes = sorted(group.regtypes.values(),
+                      key=lambda k : k.registers[0].offset)
+    for regtype in regtypes:
+        text += generateRegisterTypeDocumentation(regtype)
     return text;
 
 def generateRegionTable(db):

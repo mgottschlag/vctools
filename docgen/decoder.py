@@ -337,13 +337,7 @@ def formatRegisterEntry(name, address, first_bitfield, bitfield_count):
     text += str(first_bitfield) + ', ' +  str(bitfield_count) + ' },\n'
     return text
 
-def generateRegisterEntries(register, tables):
-    first_bitfield = tables.bitfield_count
-    for bitfield in register.bits:
-        generateBitfieldEntries(bitfield, tables)
-    bitfield_count = tables.bitfield_count - first_bitfield
-    if bitfield_count == 0:
-        first_bitfield = 0
+def generateRegisterEntries(register, tables, first_bitfield, bitfield_count):
     address = register.offset
     if register.array == False:
         entry = formatRegisterEntry(register.name, address, first_bitfield,
@@ -360,10 +354,20 @@ def generateRegisterEntries(register, tables):
             tables.register_count += 1
             address += register.stride
 
+def generateRegisterTypeEntries(regtype, tables):
+    first_bitfield = tables.bitfield_count
+    for bitfield in regtype.bits:
+        generateBitfieldEntries(bitfield, tables)
+    bitfield_count = tables.bitfield_count - first_bitfield
+    if bitfield_count == 0:
+        first_bitfield = 0
+    for reg in regtype.registers:
+        generateRegisterEntries(reg, tables, first_bitfield, bitfield_count)
+
 def generateGroupEntries(group, tables):
     first_reg = tables.register_count
-    for reg in group.registers:
-        generateRegisterEntries(reg, tables)
+    for regtype in group.regtypes.values():
+        generateRegisterTypeEntries(regtype, tables)
     reg_count = tables.register_count - first_reg
     if reg_count == 0:
         first_reg = 0
