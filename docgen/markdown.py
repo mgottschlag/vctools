@@ -161,6 +161,10 @@ def generateRegionDocumentation(db):
     text = ''
     template = string.Template(markdown_region_template)
     for i, group in enumerate(db.groups):
+        if len(group.registers) == 0 and (group.desc.strip() == ''
+                                    or group.desc.strip() == 'TBD'):
+            # Skip empty groups
+            continue
         groupdict = dict(REGION_ADDRESS=hex(group.offset),
                          REGION_SIZE=hex(group.size),
                          REGION_NAME=group.name,

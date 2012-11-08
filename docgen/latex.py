@@ -251,6 +251,10 @@ def generateRegionDocumentation(db):
     text = ''
     template = string.Template(latex_region_template)
     for group in db.groups:
+        if len(group.registers) == 0 and (group.desc.strip() == ''
+                                          or group.desc.strip() == 'TBD'):
+            # Skip empty groups
+            continue
         groupdict = dict(REGION_ADDRESS=hex(group.offset),
                          REGION_SIZE=hex(group.size),
                          REGION_NAME=escapeLatex(group.name),
