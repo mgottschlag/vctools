@@ -155,7 +155,9 @@ class RegisterDatabase:
             register.desc = dblist['desc']
         if 'access' in dblist:
             register.access = dblist['access']
-        if array_info != None:
+        if (array_info != None and (array_info.count != 1 and
+                                    not '${n}' in name and
+                                    not '$n' in name)):
             register.array = True
             register.count = array_info.count
             register.stride = array_info.stride
