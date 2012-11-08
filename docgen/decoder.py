@@ -228,7 +228,7 @@ static void decode_bitfield(unsigned int *value,
     *value &= ~bitfield->mask;
     /* search for documented values */
     for (i = 0; i < bitfield->value_count; i++) {
-        value_entry = &values[bitfield->first_value + bitfield->value_count];
+        value_entry = &values[bitfield->first_value + i];
         if (bf_value == value_entry->value) {
             if (builder->written != 0) {
                 append_string(builder, " | ");
