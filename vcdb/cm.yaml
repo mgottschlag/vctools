@@ -5,14 +5,14 @@ size: 0x1000
 desc: |
   The BCM2835 system has a number of clocks for the various components which are
   driven either by a PLL or the external 19.2 MHz oscillator. Known clocks are
-  the core clock (CM_CORE), the system timer clock (PM_TIME) which controls the
+  the core clock (CM_VPU), the system timer clock (PM_TIME) which controls the
   speed of the system timer and the GPIO clocks which are documented in the
   Raspberry Pi peripheral documentation. The interactions between the clocks are
   mostly unknown. The core clock affects at least execution speed on the
   videocore processor and the speed of the mini uart.
 arrays:
   0x8:
-    name: CORE
+    name: VPU
     length: 1
     stride: 0x8
     expand_doc: no
@@ -71,32 +71,104 @@ arrays:
             11-0:
               name: DIVF
               desc: Fractional part
+  0x28:
+    name: H264
+    length: 1
+    stride: 0x8
+    expand_doc: no
+    block: *CLOCK_CTL
+  0x38:
+    name: V3D
+    length: 1
+    stride: 0x8
+    expand_doc: no
+    block: *CLOCK_CTL
+  0x40:
+    name: CAM0_LP
+    length: 1
+    stride: 0x8
+    expand_doc: no
+    block: *CLOCK_CTL
+  0x58:
+    name: DSI0_ESC/DSI1_ESC
+    length: 1
+    stride: 0x8
+    expand_doc: no
+    block: *CLOCK_CTL
+  0x68:
+    name: DPI
+    length: 1
+    stride: 0x8
+    expand_doc: no
+    block: *CLOCK_CTL
   0x70:
     name: GP${n}
     length: 3
     stride: 0x8
     expand_doc: no
     block: *CLOCK_CTL
+  0x88:
+    name: HSM
+    length: 1
+    stride: 0x8
+    expand_doc: no
+    block: *CLOCK_CTL
   0x90:
-    name: UNK_0x90
+    name: ISP
+    length: 1
+    stride: 0x8
+    expand_doc: no
+    block: *CLOCK_CTL
+  0x98:
+    name: PCM
     length: 1
     stride: 0x8
     expand_doc: no
     block: *CLOCK_CTL
   0xa0:
-    name: UNK_0xa0
+    name: PWM
     length: 1
     stride: 0x8
     expand_doc: no
     block: *CLOCK_CTL
   0xa8:
-    name: UNK_0xa8
+    name: SLIM
+    length: 1
+    stride: 0x8
+    expand_doc: no
+    block: *CLOCK_CTL
+  0xb0:
+    name: SMI
+    length: 1
+    stride: 0x8
+    expand_doc: no
+    block: *CLOCK_CTL
+  0xc0:
+    name: eMMC
+    length: 1
+    stride: 0x8
+    expand_doc: no
+    block: *CLOCK_CTL
+  0xe0:
+    name: TSENS
     length: 1
     stride: 0x8
     expand_doc: no
     block: *CLOCK_CTL
   0xe8:
     name: TIME
+    length: 1
+    stride: 0x8
+    expand_doc: no
+    block: *CLOCK_CTL
+  0xf0:
+    name: UART
+    length: 1
+    stride: 0x8
+    expand_doc: no
+    block: *CLOCK_CTL
+  0xf8:
+    name: VEC
     length: 1
     stride: 0x8
     expand_doc: no
@@ -113,3 +185,9 @@ arrays:
 #     stride: 0x8
 #     expand_doc: no
 #     block: *CLOCK_CTL
+  0x1b0:
+    name: ARM
+    length: 1
+    stride: 0x8
+    expand_doc: no
+    block: *CLOCK_CTL
