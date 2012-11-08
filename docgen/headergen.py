@@ -35,9 +35,9 @@ def generateRegisterDefinitions(reg, group, group_addr):
     else:
         name = reg.name.replace('_${n}', '').replace('_$n', '')
         name = name.replace('${n}_', '').replace('$n_', '').replace('$n', '')
-        text += name + '(x) (*(uint32_t*)('
+        text += name + '(x) ('
         text += group + ' + ' + hex(offset) + ' + (x) * ' + hex(reg.stride)
-        text += '))\n'
+        text += ')\n'
     if reg.bits != 0:
         for bitfield in reg.bits:
             bfname = name + '_' + bitfield.name
