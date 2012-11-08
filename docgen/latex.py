@@ -141,28 +141,28 @@ def formatAccess(access):
 
 def generateBitfieldDiagram(reg):
     header = '\\bitheader{'
-    lastbit = 0
+    lastbit = 31
     content = ''
     for bitfield in reg.bits:
         low = bitfield.low
         high = bitfield.high
         header += str(low) + ', ' + str(high) + ', '
-        if low > lastbit:
+        if high < lastbit:
             # Insert a filler bitfield
-            content = '\\bitbox{' + str(low - lastbit) + '}{}' + content
+            content += '\\bitbox{' + str(lastbit - high) + '}{}'
         size = high - low + 1
         label = escapeLatex(bitfield.name[0:size])
-        content = '\\bitbox{' + str(size) + '}{' + label + '}\n' + content
-        lastbit = high + 1
-    if lastbit != 32:
+        content += '\\bitbox{' + str(size) + '}{' + label + '}\n'
+        lastbit = low - 1
+    if lastbit != 0:
         if len(reg.bits) == 0:
-            content = ('\\bitbox{' + str(32 - lastbit) + '}{' +
+            content = ('\\bitbox{' + str(lastbit + 1) + '}{' +
                        escapeLatex(reg.name) + '}' + content)
         else:
-            content = '\\bitbox{' + str(32 - lastbit) + '}{}' + content
+            content = '\\bitbox{' + str(lastbit + 1) + '}{}' + content
     header += '0, 31'
-    header += '}\\\\'
-    content += '\\\\'
+    header += '}\\\\\n'
+    content += '\\\\\n'
     return header + content
 
 def generateValueTable(values):
@@ -283,4 +283,3 @@ def generateLatex(db, filename, vcdbdir):
     text = string.Template(latex_template).substitute(global_dict)
     with open(filename, 'w') as f:
         f.write(text)
-    pass

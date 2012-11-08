@@ -169,7 +169,8 @@ class RegisterDatabase:
         if 'bits' in dblist:
             self._parseBitfields(dblist['bits'], register)
         register.bits = sorted(register.bits,
-                               key=lambda bitfield: bitfield.low)
+                               key=lambda bitfield: bitfield.low,
+                               reverse=True)
 
     def _parseBitfields(self, dblist, register):
         for bitrange, entry in dblist.iteritems():
