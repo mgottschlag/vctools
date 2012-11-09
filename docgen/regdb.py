@@ -1,6 +1,7 @@
 
 import yaml
 import os.path
+import itertools
 
 class RegisterGroup:
     """Class which contains information about one group of registers"""
@@ -57,6 +58,17 @@ class RegisterValue:
     name = ''
     desc = ''
 
+def _concatNames(a, b):
+    if a == '':
+        return b
+    if b == '':
+        return a
+    # If one of the strings contains multiple names, create all combinations
+    a_names = a.split('/')
+    b_names = b.split('/')
+    a_b_prod = itertools.product(a_names, b_names)
+    return '/'.join(map(lambda x : x[0] + '_' + x[1], a_b_prod))
+
 class RegisterDatabase:
     """Class which parses a register database file"""
 
@@ -80,14 +92,10 @@ class RegisterDatabase:
             dbfile = file(self.directory + '/' + dblist['file'], 'r')
             dblist = yaml.load(dbfile)
         # Create the group name
-        if prefix != '' and 'name' in dblist:
-            name = prefix + '_' + dblist['name']
-        elif prefix != '':
-            name = prefix
-        elif 'name' in dblist:
+        name = ''
+        if 'name' in dblist:
             name = dblist['name']
-        else:
-            name = ''
+        name = _concatNames(prefix, name)
         if 'offset' in dblist:
             offset += dblist['offset']
         # The "bare" flag defines whether entries will be prefixed
@@ -153,8 +161,10 @@ class RegisterDatabase:
             array = ArrayInfo()
             array.count = dblist['length']
             array.stride = dblist['stride']
+        name = ''
         if 'name' in dblist:
-            prefix = prefix + '_' + dblist['name']
+            name = dblist['name']
+        prefix = _concatNames(prefix, name)
         if 'block' in dblist:
             self._parseGroup(dblist['block'], prefix, offset, group, array)
         if 'register' in dblist:
@@ -172,10 +182,7 @@ class RegisterDatabase:
             name = "UNK_" + hex(offset - group.offset)
         register = Register()
         register.offset = offset
-        if prefix != '':
-            register.name = prefix + '_' + name
-        else:
-            register.name = name
+        register.name = _concatNames(prefix, name)
         if 'brief' in dblist:
             register.brief = dblist['brief']
         if (array_info != None and (array_info.count != 1 and

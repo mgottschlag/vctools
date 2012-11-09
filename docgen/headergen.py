@@ -27,30 +27,20 @@ def bitfieldMask(low, high):
     return (0xffffffff << low) & (0xffffffff >> (32 - high - 1))
 
 def generateRegisterTypeDefinitions(regtype, group, group_addr):
-    #offset = reg.offset - group_addr
-    #text = '#define VC_'
-    #if reg.array == False:
-        #text += reg.name + ' (' + group + ' + ' + hex(offset) + ')\n'
-        #name = reg.name
-    #else:
-        #name = reg.name.replace('_${n}', '').replace('_$n', '').replace('$n', '')
-        #text += name + '(x) ('
-        #text += group + ' + ' + hex(offset) + ' + (x) * ' + hex(reg.stride)
-        #text += ')\n'
     text = ''
     for reg in regtype.registers:
-        offset = reg.offset - group_addr
-        text += '#define VC_'
-        if reg.array == False:
-            text += reg.name + ' (' + group + ' + ' + hex(offset) + ')\n'
-            name = reg.name
-        else:
-            name = reg.name.replace('_${n}', '').replace('_$n', '').replace('$n', '')
-            text += name + '(x) ('
-            text += group + ' + ' + hex(offset) + ' + (x) * ' + hex(reg.stride)
-            text += ')\n'
-
-    # TODO
+        names = reg.name.split('/')
+        for name in names:
+            offset = reg.offset - group_addr
+            text += '#define VC_'
+            if reg.array == False:
+                text += name + ' (' + group + ' + ' + hex(offset) + ')\n'
+            else:
+                name = name.replace('_${n}', '').replace('_$n', '')
+                name = name.replace('${n}', '').replace('$n', '')
+                text += name + '(x) (' + group + ' + ' + hex(offset)
+                text += ' + (x) * ' + hex(reg.stride)
+                text += ')\n'
     if len(regtype.bits) != 0:
         for bitfield in regtype.bits:
             bfname = regtype.name + '_' + bitfield.name
