@@ -4,3 +4,34 @@ brief: General Purpose IO
 size: 0x1000
 desc: >
   TBD
+registers:
+  0x0:
+    name: FSEL0
+  0x4:
+    name: FSEL1
+  0x8:
+    name: FSEL2
+  0xc:
+    name: FSEL3
+  0x10:
+    name: FSEL4
+  0x14:
+    name: FSEL5
+  0x1c:
+    name: SET0
+  0x20:
+    name: SET1
+  0x28:
+    name: CLR0
+  0x2c:
+    name: CLR1
+  0x34:
+    name: LEV0
+  0x38:
+    name: LEV1
+  0x94:
+    name: PUD
+  0x98:
+    name: PUDCLK0
+  0x9c:
+    name: PUDCLK1

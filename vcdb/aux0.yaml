@@ -1,6 +1,33 @@
 ---
-name: AUX0
+name: AUX
 brief: Auxiliaries
 size: 0x1000
 desc: >
   UART1, SPI1 and SPI2
+registers:
+  0x0:
+    name: IRQ
+  0x4:
+    name: ENABLES
+  0x40:
+    name: MU_IO_REG
+  0x44:
+    name: MU_IER_REG
+  0x48:
+    name: MU_IIR_REG
+  0x4c:
+    name: MU_LCR_REG
+  0x50:
+    name: MU_MCR_REG
+  0x54:
+    name: MU_LSR_REG
+  0x58:
+    name: MU_SR_REG
+  0x5c:
+    name: MU_SCRATCH
+  0x60:
+    name: MU_CNTL_REG
+  0x64:
+    name: MU_STAT_REG
+  0x68:
+    name: MU_BAUD_REG
