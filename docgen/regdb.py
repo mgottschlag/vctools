@@ -185,9 +185,9 @@ class RegisterDatabase:
         register.name = _concatNames(prefix, name)
         if 'brief' in dblist:
             register.brief = dblist['brief']
-        if (array_info != None and (array_info.count != 1 and
-                                    not '${n}' in name and
-                                    not '$n' in name)):
+        if (array_info != None and (array_info.count != 1 or
+                                    '${n}' in name or
+                                    '$n' in name)):
             register.array = True
             register.count = array_info.count
             register.stride = array_info.stride
