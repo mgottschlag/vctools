@@ -293,6 +293,8 @@ int vc_decode_value(unsigned int address,
 class Tables:
     group_table = ''
     group_count = 0
+    # Unsorted list, the registers in register_table are sorted
+    register_table_tmp = []
     register_table = ''
     register_count = 0
     bitfield_table = ''
@@ -342,7 +344,7 @@ def generateRegisterEntries(register, tables, first_bitfield, bitfield_count):
     if register.array == False:
         entry = formatRegisterEntry(register.name, address, first_bitfield,
                                     bitfield_count)
-        tables.register_table += entry
+        tables.register_table_tmp.append((address, entry))
         tables.register_count += 1
     else:
         for i in range(0, register.count):
@@ -350,7 +352,7 @@ def generateRegisterEntries(register, tables, first_bitfield, bitfield_count):
             name = template.substitute(n=i)
             entry = formatRegisterEntry(name, address, first_bitfield,
                                         bitfield_count)
-            tables.register_table += entry
+            tables.register_table_tmp.append((address, entry))
             tables.register_count += 1
             address += register.stride
 
@@ -366,11 +368,17 @@ def generateRegisterTypeEntries(regtype, tables):
 
 def generateGroupEntries(group, tables):
     first_reg = tables.register_count
+    tables.register_table_tmp = []
     for regtype in group.regtypes.values():
         generateRegisterTypeEntries(regtype, tables)
     reg_count = tables.register_count - first_reg
     if reg_count == 0:
         first_reg = 0
+    else:
+        tables.register_table_tmp = sorted(tables.register_table_tmp,
+                                           key=lambda x: x[0])
+        tables.register_table += ''.join(map(lambda x : x[1],
+                                             tables.register_table_tmp))
     tables.group_table += '    { \"' + group.name + '\", ' + hex(group.offset)
     tables.group_table += ', ' + hex(group.size) + ', ' + str(first_reg)
     tables.group_table += ', ' + str(reg_count) + ' },\n'
