@@ -7,8 +7,104 @@ desc: >
 registers:
   0x0:
     name: FSEL0
+    bits:
+      29-27: &FSEL9
+        name: FSEL9
+      26-24: &FSEL8
+        name: FSEL8
+      23-21: &FSEL7
+        name: FSEL7
+      20-18: &FSEL6
+        name: FSEL6
+      17-15: &FSEL5
+        name: FSEL5
+      14-12: &FSEL4
+        name: FSEL4
+      11-9: &FSEL3
+        name: FSEL3
+      8-6: &FSEL2
+        name: FSEL2
+      5-3: &FSEL1
+        name: FSEL1
+      2-0: &FSEL0
+        name: FSEL0
+        access: rw
+        values:
+          0:
+            name: FSEL_INPUT
+          1:
+            name: FSEL_OUTPUT
+          2:
+            name: FSEL_AUX0
+          3:
+            name: FSEL_AUX1
+          4:
+            name: FSEL_AUX2
+          5:
+            name: FSEL_AUX3
+          6:
+            name: FSEL_AUX4
+          7:
+            name: FSEL_AUX5
   0x4:
     name: FSEL1
+    bits:
+      29-27: &FSEL19
+        name: FSEL19
+      26-24: &FSEL18
+        name: FSEL18
+      23-21: &FSEL17
+        name: FSEL17
+      20-18: &FSEL16
+        name: FSEL16
+      17-15: &FSEL15
+        name: FSEL15
+      14-12: &FSEL14
+        name: FSEL14
+        access: rw
+        values:
+          0:
+            name: FSEL_INPUT
+          1:
+            name: FSEL_OUTPUT
+          2:
+            name: FSEL_AUX0
+          3:
+            name: FSEL_AUX1
+          4:
+            name: FSEL_AUX2
+          5:
+            name: FSEL_AUX3
+          6:
+            name: FSEL_AUX4
+          7:
+            name: FSEL_AUX5
+      11-9: &FSEL13
+        name: FSEL13
+      8-6: &FSEL12
+        name: FSEL12
+      5-3: &FSEL11
+        name: FSEL11
+      2-0: &FSEL10
+        name: FSEL10
+        access: rw
+        values:
+          0:
+            name: FSEL_INPUT
+          1:
+            name: FSEL_OUTPUT
+          2:
+            name: FSEL_AUX0
+          3:
+            name: FSEL_AUX1
+          4:
+            name: FSEL_AUX2
+          5:
+            name: FSEL_AUX3
+          6:
+            name: FSEL_AUX4
+          7:
+            name: FSEL_AUX5
   0x8:
     name: FSEL2
   0xc:
