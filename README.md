@@ -37,10 +37,13 @@ The directory `docgen` also contains a program which creates a C header file
 containing all documented registers and register groups. To generate the file,
 call it like this:
 
-    python docgen/docgen.py vcdb .
+    python docgen/headergen.py vcdb .
 
 The last parameter again specifies the directory in which the header file
 (called `vcregs.h`) is placed.
+
+If the -a option is passed headergen will also produce a file useable
+by the as assembler.
 
 Register Trace Decoder
 ----------------------
