@@ -10,101 +10,407 @@ registers:
     bits:
       29-27: &FSEL9
         name: FSEL9
+        access: rw
+        values:
+          0:
+            name: INPUT
+          1:
+            name: OUTPUT
+          2:
+            name: SPI0_MISO
+          3:
+            name: SD1
+          4:
+            name: AUX2
+          5:
+            name: AUX3
+          6:
+            name: AUX4
+          7:
+            name: AUX5
       26-24: &FSEL8
         name: FSEL8
+        access: rw
+        values:
+          0:
+            name: INPUT
+          1:
+            name: OUTPUT
+          2:
+            name: SPI0_CE0_N
+          3:
+            name: SD0
+          4:
+            name: AUX2
+          5:
+            name: AUX3
+          6:
+            name: AUX4
+          7:
+            name: AUX5
       23-21: &FSEL7
         name: FSEL7
+        access: rw
+        values:
+          0:
+            name: INPUT
+          1:
+            name: OUTPUT
+          2:
+            name: SPI0_CE1_N 
+          3:
+            name: SWE_N
+          4:
+            name: AUX2
+          5:
+            name: AUX3
+          6:
+            name: AUX4
+          7:
+            name: AUX5
       20-18: &FSEL6
         name: FSEL6
+        access: rw
+        values:
+          0:
+            name: INPUT
+          1:
+            name: OUTPUT
+          2:
+            name: GPCLK2
+          3:
+            name: SOE_N
+          4:
+            name: AUX2
+          5:
+            name: AUX3
+          6:
+            name: AUX4
+          7:
+            name: ARM_RTCK
       17-15: &FSEL5
         name: FSEL5
+        access: rw
+        values:
+          0:
+            name: INPUT
+          1:
+            name: OUTPUT
+          2:
+            name: GPCLK1
+          3:
+            name: SA0
+          4:
+            name: AUX2
+          5:
+            name: AUX3
+          6:
+            name: AUX4
+          7:
+            name: ARM_TDO
       14-12: &FSEL4
         name: FSEL4
+        access: rw
+        values:
+          0:
+            name: INPUT
+          1:
+            name: OUTPUT
+          2:
+            name: GPCLK0
+          3:
+            name: SA1
+          4:
+            name: AUX2
+          5:
+            name: AUX3
+          6:
+            name: AUX4
+          7:
+            name: ARM_TDI
       11-9: &FSEL3
         name: FSEL3
+        access: rw
+        values:
+          0:
+            name: INPUT
+          1:
+            name: OUTPUT
+          2:
+            name: SCL1
+          3:
+            name: SA2
+          4:
+            name: AUX2
+          5:
+            name: AUX3
+          6:
+            name: AUX4
+          7:
+            name: AUX5
       8-6: &FSEL2
         name: FSEL2
+        access: rw
+        values:
+          0:
+            name: INPUT
+          1:
+            name: OUTPUT
+          2:
+            name: SDA1
+          3:
+            name: SA3
+          4:
+            name: AUX2
+          5:
+            name: AUX3
+          6:
+            name: AUX4
+          7:
+            name: AUX5
       5-3: &FSEL1
         name: FSEL1
+        access: rw
+        values:
+          0:
+            name: INPUT
+          1:
+            name: OUTPUT
+          2:
+            name: SCL0
+          3:
+            name: SA4
+          4:
+            name: AUX2
+          5:
+            name: AUX3
+          6:
+            name: AUX4
+          7:
+            name: AUX5
       2-0: &FSEL0
         name: FSEL0
         access: rw
         values:
           0:
-            name: FSEL_INPUT
+            name: INPUT
           1:
-            name: FSEL_OUTPUT
+            name: OUTPUT
           2:
-            name: FSEL_AUX0
+            name: SDA0
           3:
-            name: FSEL_AUX1
+            name: SA5
           4:
-            name: FSEL_AUX2
+            name: AUX2
           5:
-            name: FSEL_AUX3
+            name: AUX3
           6:
-            name: FSEL_AUX4
+            name: AUX4
           7:
-            name: FSEL_AUX5
+            name: AUX5
   0x4:
     name: FSEL1
     bits:
       29-27: &FSEL19
         name: FSEL19
+        access: rw
+        values:
+          0:
+            name: INPUT
+          1:
+            name: OUTPUT
+          2:
+            name: PCM_FS
+          3:
+            name: SD11
+          4:
+            name: AUX2
+          5:
+            name: BSCSL_SCL
+          6:
+            name: SPI1_MISO
+          7:
+            name: PWM1
       26-24: &FSEL18
         name: FSEL18
+        access: rw
+        values:
+          0:
+            name: INPUT
+          1:
+            name: OUTPUT
+          2:
+            name: PCM_CLK
+          3:
+            name: SD10
+          4:
+            name: AUX2
+          5:
+            name: BCSCL_SDA
+          6:
+            name: SPI1_CE0_N
+          7:
+            name: PWM0
       23-21: &FSEL17
         name: FSEL17
+        access: rw
+        values:
+          0:
+            name: INPUT
+          1:
+            name: OUTPUT
+          2:
+            name: AUX0
+          3:
+            name: SD9
+          4:
+            name: AUX2
+          5:
+            name: RTS0
+          6:
+            name: SPI1_CE1_N
+          7:
+            name: RTS1
       20-18: &FSEL16
         name: FSEL16
+        access: rw
+        values:
+          0:
+            name: INPUT
+          1:
+            name: OUTPUT
+          2:
+            name: AUX0
+          3:
+            name: SD8
+          4:
+            name: AUX2
+          5:
+            name: CTS1
+          6:
+            name: SPI1_CE2_N
+          7:
+            name: CTS1
       17-15: &FSEL15
         name: FSEL15
+        access: rw
+        values:
+          0:
+            name: INPUT
+          1:
+            name: OUTPUT
+          2:
+            name: RXD0
+          3:
+            name: SD7
+          4:
+            name: AUX2
+          5:
+            name: AUX3
+          6:
+            name: AUX4
+          7:
+            name: RXD1
       14-12: &FSEL14
         name: FSEL14
         access: rw
         values:
           0:
-            name: FSEL_INPUT
+            name: INPUT
           1:
-            name: FSEL_OUTPUT
+            name: OUTPUT
           2:
-            name: FSEL_AUX0
+            name: TXD0
           3:
-            name: FSEL_AUX1
+            name: SD6
           4:
-            name: FSEL_AUX2
+            name: AUX2
           5:
-            name: FSEL_AUX3
+            name: AUX3
           6:
-            name: FSEL_AUX4
+            name: AUX4
           7:
-            name: FSEL_AUX5
+            name: TXD1
       11-9: &FSEL13
         name: FSEL13
+        access: rw
+        values:
+          0:
+            name: INPUT
+          1:
+            name: OUTPUT
+          2:
+            name: PWM1
+          3:
+            name: SD5
+          4:
+            name: AUX2
+          5:
+            name: AUX3
+          6:
+            name: AUX4
+          7:
+            name: ARM_TCK
       8-6: &FSEL12
         name: FSEL12
+        access: rw
+        values:
+          0:
+            name: INPUT
+          1:
+            name: OUTPUT
+          2:
+            name: PWM0
+          3:
+            name: SD4
+          4:
+            name: AUX2
+          5:
+            name: AUX3
+          6:
+            name: AUX4
+          7:
+            name: ARM_TMS
       5-3: &FSEL11
         name: FSEL11
+        access: rw
+        values:
+          0:
+            name: INPUT
+          1:
+            name: OUTPUT
+          2:
+            name: SPI0_SCLK
+          3:
+            name: SD2
+          4:
+            name: AUX2
+          5:
+            name: AUX3
+          6:
+            name: AUX4
+          7:
+            name: AUX5
       2-0: &FSEL10
         name: FSEL10
         access: rw
         values:
           0:
-            name: FSEL_INPUT
+            name: INPUT
           1:
-            name: FSEL_OUTPUT
+            name: OUTPUT
           2:
-            name: FSEL_AUX0
+            name: SPI0_MOSI
           3:
-            name: FSEL_AUX1
+            name: SD2
           4:
-            name: FSEL_AUX2
+            name: AUX2
           5:
-            name: FSEL_AUX3
+            name: AUX3
           6:
-            name: FSEL_AUX4
+            name: AUX4
           7:
-            name: FSEL_AUX5
+            name: AUX5
   0x8:
     name: FSEL2
   0xc:
