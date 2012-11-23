@@ -174,8 +174,13 @@ def generateValueTable(values):
 def generateBitfieldTable(bits):
     if len(bits) == 0:
         return ''
+    rows = 0
     text = bitfield_table_header
     for bitfield in bits:
+        if rows >= 45:
+            text += bitfield_table_footer
+            text += bitfield_table_header
+            rows = 0;
         low = bitfield.low
         high = bitfield.high
         if low == high:
@@ -187,6 +192,7 @@ def generateBitfieldTable(bits):
         if len(bitfield.values) != 0:
             text += '\n' + generateValueTable(bitfield.values)
         text += ' & ' + formatAccess(bitfield.access) + ' \\\\\n\\hline\n'
+        rows += len(bitfield.values) + 1
     text += bitfield_table_footer
     return text
 
