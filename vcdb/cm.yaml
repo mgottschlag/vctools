@@ -34,6 +34,10 @@ arrays:
     name: H264
     length: 1
     block: *CLOCK_CTL
+  0x30:
+    name: UNK_0x30
+    length: 1
+    block: *CLOCK_CTL
   0x38:
     name: V3D
     length: 1
@@ -111,6 +115,10 @@ arrays:
 #     block: *CLOCK_CTL
   0x1b0:
     name: ARM
+    length: 1
+    block: *CLOCK_CTL
+  0x1c0:
+    name: UNK_0x1c0
     length: 1
     block: *CLOCK_CTL
 

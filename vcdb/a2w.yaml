@@ -1,33 +1,89 @@
 ---
 name: A2W
 size: 0x1000
-desc: >
+desc: |
+  The A2W register region seems to contain at least the settings of the various
+  PLLs used for clock generation. The peripheral document lists a number of
+  clock sources in the section about GPIO clock generation.
+
+  Per default, the videocore processor uses the PLLC while the ARM core uses
+  the PLLA and other components use the PLLD.
+
+  Some information is available at http://elinux.org/RPi_Overclocking.
   TBD
 registers:
-  0x20:
-    name: PLLC_MULT
-    brief: PLLC Multiplier
+  0x620:
+    name: PLLx_DIV
+    brief: PLL divisor
+    desc: Divisor of PLLs, at least of PLLC
     bits:
       31-24: &PASSWD_FIELD
         name: PASSWD
         values:
           0x5a:
             name: PASSWD
-      11-0:
-        name: MULT
-  0x120:
-    name: PLLx_MULT
-    brief: Unknown PLL multiplier
-    desc: Multiplier of one of the other PLLs?
-    bits:
-      31-24: *PASSWD_FIELD
-      11-0:
-        name: MULT
-  0x620:
-    name: PLLx_DIV
-    brief: PLL divisor
-    desc: Divisor of PLLs, at least of PLLC
-    bits:
-      31-24: *PASSWD_FIELD
       23-0:
         name: DIV
+arrays:
+  0x20:
+    name: PLLC
+    length: 1
+    stride: 0x20
+    block: &PLL_CTL
+      size: 0x8
+      desc: >
+        Registers to control a PLL
+      registers:
+        0x0:
+          name: MULT
+          brief: PLL Multiplier
+          type: MULT
+        0x4:
+        0x8:
+        0xc:
+        0x10:
+        0x14:
+        0x18:
+        0x1c:
+        0x100:
+          name: MULT2
+          brief: PLL Multiplier 2 (?)
+          type: MULT
+        0x200:
+          name: MULT_FRACT
+          brief: Fractional Part
+          desc: |
+            Fractional part of the PLL multiplier - the resulting multiplier is
+            MULT + MULT_FRACT / 0x100000.
+          type: MULT_FRACT
+  0x40:
+    name: PLLD
+    length: 1
+    stride: 0x20
+    block: *PLL_CTL
+  0xe0:
+    name: PLLA
+    length: 1
+    stride: 0x20
+    block: *PLL_CTL
+types:
+  MULT:
+    name: MULT
+    brief: PLL Multiplier
+    access: rw
+    bits:
+      31-24: &PASSWD_FIELD_
+        name: PASSWD
+        values:
+          0x5a:
+            name: PASSWD
+      11-0:
+        name: MULT
+  MULT_FRACT:
+    name: MULT_FRACT
+    brief: PLL Multiplier (Fractional Part)
+    access: rw
+    bits:
+      31-24: *PASSWD_FIELD
+      19-0:
+        name: MULT_FRACT
