@@ -7,8 +7,22 @@ desc: >
 registers:
   0x0:
     name: IRQ
+    bits:
+      2:
+        name: SPI_2
+      1:
+        name: SPI_1
+      0:
+        name: UART
   0x4:
     name: ENABLES
+    bits:
+      2:
+        name: SPI_2
+      1:
+        name: SPI_1
+      0:
+        name: UART
   0x40:
     name: MU_IO_REG
   0x44:
@@ -21,6 +35,15 @@ registers:
     name: MU_MCR_REG
   0x54:
     name: MU_LSR_REG
+    bits:
+      6:
+        name: TX_IDLE
+      5:
+        name: TX_EMPTY
+      1:
+        name: RX_OVER
+      0:
+        name: RX_READY
   0x58:
     name: MU_SR_REG
   0x5c:
