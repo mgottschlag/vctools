@@ -1,10 +1,10 @@
 #!/usr/bin/python
 import argparse
-import regdb
+import registers.regdb as regdb
 import subprocess
 import datetime
 import string
-import decoder
+import registers.decoder as decoder
 
 file_header_c = """
 /**

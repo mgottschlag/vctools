@@ -1,8 +1,8 @@
 #!/usr/bin/python
 import argparse
-import regdb
-import latex
-import markdown
+import registers.regdb as regdb
+import registers.latex as latex
+import registers.markdown as markdown
 
 # Parse the commandline arguments
 argparser = argparse.ArgumentParser(
