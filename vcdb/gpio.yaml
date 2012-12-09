@@ -286,7 +286,7 @@ registers:
           4:
             name: AUX2
           5:
-            name: CTS1
+            name: CTS0
           6:
             name: SPI1_CE2_N
           7:
