@@ -6,7 +6,6 @@ function_lists:
       TBD
     return_type: int
     parameters: int
-    type: int (*condition_passed[])(int)
     entries:
       - name: eq
         brief: Equal
@@ -326,8 +325,13 @@ function_lists:
         code_name: clz
         code: |
           void clz(uint32_t *dest, int32_t a, int32_t b) {
-              error("Not implemented!");
-              /* TODO */
+              int length = 0;
+              /* TODO: what happens if b is 0? */
+              while (b != 0) {
+                  b = b >> 1;
+                  length++;
+              }
+              *dest = 32 - length;
           }
       - name: lsl
         brief: Logical Shift Left
@@ -341,8 +345,13 @@ function_lists:
         code_name: brev
         code: |
           void brev(uint32_t *dest, int32_t a, int32_t b) {
-              error("Not implemented!");
-              /* TODO */
+              uint32_t reverse = 0;
+              int i;
+              for (i = 0; i < 32; i++) {
+                  reverse = reverse << 1;
+                  reverse |= b & 1;
+                  b = b >> 1;
+              }
           }
       - name: asr
         brief: Arithmetic Shift Right
