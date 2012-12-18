@@ -126,225 +126,227 @@ function_lists:
     desc: |
       TBD
     return_type: void
-    parameters: uint32_t*, int32_t, int32_t
+    parameters: int, int32_t, int32_t
     entries:
       - name: mov
         brief: Move
         code_name: mov
         code: |
-          void mov(uint32_t *dest, int32_t a, int32_t b) {
-              *dest = b;
+          void mov(int d, int32_t a, int32_t b) {
+              set_reg(d, b);
           }
       - name: cmn
         brief: Compare By Addition
         code_name: cmn
         code: |
-          void cmn(uint32_t *dest, int32_t a, int32_t b) {
-              sr = (sr & ~0xf) | condition_flags((int64_t)a + b);
+          void cmn(int d, int32_t a, int32_t b) {
+              set_reg(sr, (get_reg(sr) & ~0xf) | condition_flags((int64_t)a + b));
           }
       - name: add
         brief: Addition
         code_name: add
         code: |
-          void add(uint32_t *dest, int32_t a, int32_t b) {
-              *dest = a + b;
+          void add(int d, int32_t a, int32_t b) {
+              set_reg(d, a + b);
           }
       - name: bic
         brief: Bit Clear
         code_name: bic
         code: |
-          void bic(uint32_t *dest, int32_t a, int32_t b) {
-              *dest = a & ~b;
+          void bic(int d, int32_t a, int32_t b) {
+              set_reg(d, a & ~b);
           }
       - name: mul
         brief: Multiply
         code_name: mul
         code: |
-          void mul(uint32_t *dest, int32_t a, int32_t b) {
-              *dest = a * b;
+          void mul(int d, int32_t a, int32_t b) {
+              set_reg(d, a * b);
           }
       - name: eor
         brief: Exclusive Or
         code_name: eor
         code: |
-          void eor(uint32_t *dest, int32_t a, int32_t b) {
-              *dest = a ^ b;
+          void eor(int d, int32_t a, int32_t b) {
+              set_reg(d, a ^ b);
           }
       - name: sub
         brief: Subtraction
         code_name: sub
         code: |
-          void sub(uint32_t *dest, int32_t a, int32_t b) {
-              *dest = a - b;
+          void sub(int d, int32_t a, int32_t b) {
+              set_reg(d, a - b);
           }
       - name: and
         brief: And
         code_name: and
         code: |
-          void and(uint32_t *dest, int32_t a, int32_t b) {
-              *dest = a & b;
+          void and(int d, int32_t a, int32_t b) {
+              set_reg(d, a & b);
           }
       - name: mvn
         brief: Not
         code_name: mvn
         code: |
-          void mvn(uint32_t *dest, int32_t a, int32_t b) {
-              *dest = ~b;
+          void mvn(int d, int32_t a, int32_t b) {
+              set_reg(d, ~b);
           }
       - name: ror
         brief: Rotate Right
         code_name: ror
         code: |
-          void ror(uint32_t *dest, int32_t a, int32_t b) {
-              *dest = (a >> b) | (a << (32 - b));
+          void ror(int d, int32_t a, int32_t b) {
+              set_reg(d, (a >> b) | (a << (32 - b)));
           }
       - name: cmp
         brief: Compare
         code_name: cmp
         code: |
-          void cmp(uint32_t *dest, int32_t a, int32_t b) {
-              sr = (sr & ~0xf) | condition_flags((int64_t)a - b);
+          void cmp(int d, int32_t a, int32_t b) {
+              set_reg(sr, (get_reg(sr) & ~0xf) | condition_flags((int64_t)a - b));
           }
       - name: rsb
         brief: Reverse Subtract
         code_name: rsb
         code: |
-          void rsb(uint32_t *dest, int32_t a, int32_t b) {
-              *dest = b - a;
+          void rsb(int d, int32_t a, int32_t b) {
+              set_reg(d, b - a);
           }
       - name: btst
         brief: Bit Test
         code_name: btst
         code: |
-          void btst(uint32_t *dest, int32_t a, int32_t b) {
-              sr |= 0x8;
+          void btst(int d, int32_t a, int32_t b) {
+              int32_t tmp_sr = get_reg(sr);
+              tmp_sr |= 0x8;
               if (a & (1 << b)) {
-                  sr &= ~0x8;
+                  tmp_sr &= ~0x8;
               }
+              set_reg(sr, tmp_sr);
           }
       - name: or
         brief: Or
         code_name: or
         code: |
-          void or(uint32_t *dest, int32_t a, int32_t b) {
-              *dest = a | b;
+          void or(int d, int32_t a, int32_t b) {
+              set_reg(d, a | b);
           }
       - name: extu
         brief: Mask Leftmost Bits
         code_name: extu
         code: |
-          void extu(uint32_t *dest, int32_t a, int32_t b) {
-              *dest = a & ((1 << b) - 1);
+          void extu(int d, int32_t a, int32_t b) {
+              set_reg(d, a & ((1 << b) - 1));
           }
       - name: max
         brief: Maximum
         code_name: max
         code: |
-          void max(uint32_t *dest, int32_t a, int32_t b) {
-              *dest = a > b ? a : b;
+          void max(int d, int32_t a, int32_t b) {
+              set_reg(d, a > b ? a : b);
           }
       - name: bset
         brief: Bit Set
         code_name: bset
         code: |
-          void bset(uint32_t *dest, int32_t a, int32_t b) {
-              *dest = a | (1 << b);
+          void bset(int d, int32_t a, int32_t b) {
+              set_reg(d, a | (1 << b));
           }
       - name: min
         brief: Min
         code_name: min
         code: |
-          void min(uint32_t *dest, int32_t a, int32_t b) {
-              *dest = a < b ? a : b;
+          void min(int d, int32_t a, int32_t b) {
+              set_reg(d, a < b ? a : b);
           }
       - name: bclr
         brief: Bit Clear
         code_name: bclr
         code: |
-          void bclr(uint32_t *dest, int32_t a, int32_t b) {
-              *dest = a & ~(1 << b);
+          void bclr(int d, int32_t a, int32_t b) {
+              set_reg(d, a & ~(1 << b));
           }
       - name: adds2
         brief: Add Scaled by 2
         code_name: adds2
         code: |
-          void adds2(uint32_t *dest, int32_t a, int32_t b) {
-              *dest = a + b * 2;
+          void adds2(int d, int32_t a, int32_t b) {
+              set_reg(d, a + b * 2);
           }
       - name: bchg
         brief: Bit Toggle
         code_name: bchg
         code: |
-          void bchg(uint32_t *dest, int32_t a, int32_t b) {
-              *dest = a ^ (1 << b);
+          void bchg(int d, int32_t a, int32_t b) {
+              set_reg(d, a ^ (1 << b));
           }
       - name: adds4
         brief: Add Scaled by 4
         code_name: adds4
         code: |
-          void adds4(uint32_t *dest, int32_t a, int32_t b) {
-              *dest = a + b * 4;
+          void adds4(int d, int32_t a, int32_t b) {
+              set_reg(d, a + b * 4);
           }
       - name: adds8
         brief: Add Scaled by 8
         code_name: adds8
         code: |
-          void adds8(uint32_t *dest, int32_t a, int32_t b) {
-              *dest = a + b * 8;
+          void adds8(int d, int32_t a, int32_t b) {
+              set_reg(d, a + b * 8);
           }
       - name: adds16
         brief: Add Scaled by 16
         code_name: adds16
         code: |
-          void adds16(uint32_t *dest, int32_t a, int32_t b) {
-              *dest = a + b * 16;
+          void adds16(int d, int32_t a, int32_t b) {
+              set_reg(d, a + b * 16);
           }
       - name: exts
         brief: Sign Extend
         code_name: exts
         code: |
-          void exts(uint32_t *dest, int32_t a, int32_t b) {
-              *dest = sign_extend(a, b);
+          void exts(int d, int32_t a, int32_t b) {
+              set_reg(d, sign_extend(a, b));
           }
       - name: neg
         brief: Negate
         code_name: neg
         code: |
-          void neg(uint32_t *dest, int32_t a, int32_t b) {
-              *dest = -b;
+          void neg(int d, int32_t a, int32_t b) {
+              set_reg(d, -b);
           }
       - name: lsr
         brief: Logical Shift Right
         code_name: lsr
         code: |
-          void lsr(uint32_t *dest, int32_t a, int32_t b) {
-              *dest = (uint32_t)a >> b;
+          void lsr(int d, int32_t a, int32_t b) {
+              set_reg(d, (uint32_t)a >> b);
           }
       - name: clz
         brief: Count Leading Zeros
         code_name: clz
         code: |
-          void clz(uint32_t *dest, int32_t a, int32_t b) {
+          void clz(int d, int32_t a, int32_t b) {
               int length = 0;
               /* TODO: what happens if b is 0? */
               while (b != 0) {
                   b = b >> 1;
                   length++;
               }
-              *dest = 32 - length;
+              set_reg(d, 32 - length);
           }
       - name: lsl
         brief: Logical Shift Left
         code_name: lsl
         code: |
-          void lsl(uint32_t *dest, int32_t a, int32_t b) {
-              *dest = a << b;
+          void lsl(int d, int32_t a, int32_t b) {
+              set_reg(d, a << b);
           }
       - name: brev
         brief: Bit Reverse
         code_name: brev
         code: |
-          void brev(uint32_t *dest, int32_t a, int32_t b) {
+          void brev(int d, int32_t a, int32_t b) {
               uint32_t reverse = 0;
               int i;
               for (i = 0; i < 32; i++) {
@@ -352,27 +354,28 @@ function_lists:
                   reverse |= b & 1;
                   b = b >> 1;
               }
+              set_reg(d, reverse);
           }
       - name: asr
         brief: Arithmetic Shift Right
         code_name: asr
         code: |
-          void asr(uint32_t *dest, int32_t a, int32_t b) {
+          void asr(int d, int32_t a, int32_t b) {
               if (a && 0x80000000) {
-                  *dest = (a >> b) | ~(0xffffffffu >> b);
+                  set_reg(d, (a >> b) | ~(0xffffffffu >> b));
               } else {
-                  *dest = a >> b;
+                  set_reg(d, a >> b);
               }  
           }
       - name: _abs
         brief: Absolute Value
         code_name: abs
         code: |
-          void _abs(uint32_t *dest, int32_t a, int32_t b) {
+          void _abs(int d, int32_t a, int32_t b) {
               if (b < 0) {
-                  *dest = -b;
+                  set_reg(d, -b);
               } else {
-                  *dest = b;
+                  set_reg(d, b);
               }
           }
   float_op:
@@ -380,119 +383,119 @@ function_lists:
     desc: |
       TBD
     return_type: void
-    parameters: float*, float, float
+    parameters: int, float, float
     entries:
       - name: fadd
         brief: Add
         code_name: fadd
         code: |
-          void fadd(float *dest, float a, float b) {
-              *dest = a + b;
+          void fadd(int d, float a, float b) {
+              set_reg(d, float_to_int(a + b));
           }
       - name: fsub
         brief: Subtract
         code_name: fsub
         code: |
-          void fsub(float *dest, float a, float b) {
-              *dest = a - b;
+          void fsub(int d, float a, float b) {
+              set_reg(d, float_to_int(a - b));
           }
       - name: fmul
         brief: Multiply
         code_name: fmul
         code: |
-          void fmul(float *dest, float a, float b) {
-              *dest = a * b;
+          void fmul(int d, float a, float b) {
+              set_reg(d, float_to_int(a * b));
           }
       - name: fdiv
         brief: Divide
         code_name: fdiv
         code: |
-          void fdiv(float *dest, float a, float b) {
+          void fdiv(int d, float a, float b) {
               // TODO: division through 0?
-              *dest = a / b;
+              set_reg(d, float_to_int(a / b));
           }
       - name: fcmp
         brief: Compare
         code_name: fcmp
         code: |
-          void fcmp(float *dest, float a, float b) {
+          void fcmp(int d, float a, float b) {
               error("TBD");
           }
       - name: _fabs
         brief: Absolute Value
         code_name: fabs
         code: |
-          void _fabs(float *dest, float a, float b) {
-              *dest = fabs(b);
+          void _fabs(int d, float a, float b) {
+              set_reg(d, float_to_int(fabs(b)));
           }
       - name: frsb
         brief: Reverse Subtract
         code_name: frsb
         code: |
-          void frsb(float *dest, float a, float b) {
-              *dest = b - 1;
+          void frsb(int d, float a, float b) {
+              set_reg(d, float_to_int(b - 1));
           }
       - name: _fmax
         brief: Maximum
         code_name: fmax
         code: |
-          void _fmax(float *dest, float a, float b) {
-              *dest = a > b ? a : b;
+          void _fmax(int d, float a, float b) {
+              set_reg(d, float_to_int(a > b ? a : b));
           }
       - name: frcp
         brief: Reciprocal
         code_name: frcp
         code: |
-          void frcp(float *dest, float a, float b) {
-              *dest = 1.0f / b;
+          void frcp(int d, float a, float b) {
+              set_reg(d, float_to_int(1.0f / b));
           }
       - name: frsqrt
         brief: Reciprocal Square Root
         code_name: frsqrt
         code: |
-          void frsqrt(float *dest, float a, float b) {
-              *dest = 1.0f / sqrt(b);
+          void frsqrt(int d, float a, float b) {
+              set_reg(d, float_to_int(1.0f / sqrt(b)));
           }
       - name: fnmul
         brief: Negated Multiply
         code_name: fnmul
         code: |
-          void fnmul(float *dest, float a, float b) {
-              *dest = -(a * b);
+          void fnmul(int d, float a, float b) {
+              set_reg(d, float_to_int(-(a * b)));
           }
       - name: _fmin
         brief: Minimum
         code_name: fmin
         code: |
-          void _fmin(float *dest, float a, float b) {
-              *dest = a < b ? a : b;
+          void _fmin(int d, float a, float b) {
+              set_reg(d, float_to_int(a < b ? a : b));
           }
       - name: fld0
         brief: Load Zero
         code_name: fld0
         code: |
-          void fld0(float *dest, float a, float b) {
-              *dest = 0.0f;
+          void fld0(int d, float a, float b) {
+              set_reg(d, float_to_int(0.0f));
           }
       - name: fld1
         brief: Load One
         code_name: fld1
         code: |
-          void fld1(float *dest, float a, float b) {
-              *dest = 1.0f;
+          void fld1(int d, float a, float b) {
+              set_reg(d, float_to_int(1.0f));
           }
       - name: fop14
         brief: Unknown Operation 14
         code_name: fop14
         code: |
-          void fop14(float *dest, float a, float b) {
+          void fop14(int d, float a, float b) {
               error("TBD");
           }
       - name: fop14
         brief: Unknown Operation 15
         code_name: fop14
         code: |
-          void fop15(float *dest, float a, float b) {
+          void fop15(int d, float a, float b) {
               error("TBD");
           }
   vector_op:
@@ -509,45 +512,47 @@ instructions:
   - name: enable
     pattern: 0000 0000 0000 0100
     code: |
-      sr |= 1 << 30;
+      set_reg(sr, get_reg(sr) | (1 << 30));
   - name: disable
     pattern: 0000 0000 0000 0101
     code: |
-      sr |= ~(1 << 30);
+      set_reg(sr, get_reg(sr) | ~(1 << 30));
   - name: clr
     pattern: 0000 0000 0000 0110
     code: |
-      sr &= ~0x30;
+      set_reg(sr, get_reg(sr) & ~0x30);
   - name: inc
     pattern: 0000 0000 0000 0111
     code: |
-      sr = ((sr & 0x30) + 0x10) & 0x30;
+      set_reg(sr, ((get_reg(sr) & 0x30) + 0x10) & 0x30);
   - name: chg
     pattern: 0000 0000 0000 1000
     code: |
-      sr ^= 0x20;
+      set_reg(sr, get_reg(sr) ^ 0x20);
   - name: dec
     pattern: 0000 0000 0000 1001
     code: |
-      sr = ((sr & 0x30) - 0x10) & 0x30;
+      set_reg(sr, ((get_reg(sr) & 0x30) - 0x10) & 0x30);
   - name: rti
     pattern: 0000 0000 0000 1010
     code: |
-      sr = pop();
-      pc = pop() - 2;
+      /* the order is important - the second pop() still uses r28! */
+      uint32_t new_sr = pop();
+      set_reg(pc, pop());
+      set_reg(sr, new_sr);
   - name: swi Rd
     pattern: 0000 0000 001 Rd:5
     code: |
-      interrupt(0x20 + (Rd & 0x31), "swi");
+      interrupt(0x20 + (get_reg(Rd) & 0x31), "swi");
   - name: b Rd
     pattern: 0000 0000 010 Rd:5
     code: |
-      pc = Rd - 2;
+      set_reg(pc, get_reg(Rd));
   - name: b Rd
     pattern: 0000 0000 011 Rd:5
     code: |
-      lr = pc + 2;
-      pc = Rd - 2;
+      set_reg(lr, get_reg(pc) + 2);
+      set_reg(pc, get_reg(Rd));
   - name: tbb Rd
     pattern: 0000 0000 100 Rd:5
     code: |
@@ -560,7 +565,7 @@ instructions:
     pattern: 0000 0000 111 Rd:5
     code: |
       // TODO: compute the proper coreid
-      Rd = 0x04000104;
+      set_reg(Rd, 0x04000104);
   - name: swi imm
     pattern: 0000 0001 11 imm:6
     code: |
@@ -571,7 +576,7 @@ instructions:
     code: |
       int first_register[] = {0, 6, 18, 24};
       int i;
-      uint32_t old_sp = sp;
+      uint32_t old_sp = get_reg(sp);
       if (with_lr) {
           count = (count + 1) & 31;
       } else {
@@ -582,11 +587,11 @@ instructions:
           if (reg_index == 25) {
               push(old_sp);
           } else {
-              push(reg[reg_index]);
+              push(get_reg(reg_index));
           }
       }
       if (with_lr) {
-          push(lr);
+          push(get_reg(lr));
       }
   - name: pop
     pattern: 0000 001 with_pc:1 0 first:2 count:5
@@ -599,107 +604,107 @@ instructions:
       } else {
           count = count + 1;
       }
-      next_sp = sp + (count + with_pc) * 4;
+      next_sp = get_reg(sp) + (count + with_pc) * 4;
       if (with_pc) {
-          pc = pop() - 2;
+          set_reg(pc, pop());
       }
       // TODO: push/pop order?
       for (i = count - 1; i >= 0; i--) {
           int reg_index = (first_register[first] + i) & 31;
           if (reg_index == 31) {
               // pc is not popped from the stack!
-              sp = sp + 4;
+              set_reg(sp, get_reg(sp) + 4);
           } else if (reg_index == 25) {
               next_sp = pop();
           } else {
-              regs[reg_index] = pop();
+              set_reg(reg_index, pop());
           }
       }
-      sp = next_sp;
+      set_reg(sp, next_sp);
   - name: ld Rd, offset(sp)
     pattern: 0000 010 offset:5 Rd:4
     code: |
-      Rd = load(sp + sign_extend_5(offset) * 4, WORD);
+      set_reg(Rd, load(get_reg(sp) + sign_extend_5(offset) * 4, WORD));
   - name: st Rd, offset(sp)
     pattern: 0000 011 offset:5 Rd:4
     code: |
-      store(sp + sign_extend_5(offset) * 4, WORD, Rd);
+      store(get_reg(sp) + sign_extend_5(offset) * 4, WORD, get_reg(Rd));
   - name: ld<size> Rd, (Rs)
     pattern: 0000 1 format:2 0 Rs:4 Rd:4
     code: |
-      Rd = load(Rs, format);
+      set_reg(Rd, load(get_reg(Rs), format));
   - name: st<size> Rd, (Rs)
     pattern: 0000 1 format:2 1 Rs:4 Rd:4
     code: |
-      store(Rs, format, Rd);
+      store(get_reg(Rs), format, get_reg(Rd));
   - name: lea Rd, 4*imm(sp)
     pattern: 0001 0 imm:6 Rd:5
     code: |
-      Rd = sp + 4 * sign_extend(imm, 6);
+      set_reg(get_reg(Rd), get_reg(sp) + 4 * sign_extend(imm, 6));
   - name: b<cond> offset
     pattern: 0001 1 cond:4 offset:7
     code: |
-      if (condition_passed(cond, sr)) {
-        pc = (pc - 2) + sign_extend_7(offset) * 2;
+      if (condition_passed(cond, get_reg(sr))) {
+        set_reg(pc, get_reg(pc) + sign_extend_7(offset) * 2);
       }
   - name: ld Rd, 4*imm(Rs)
     pattern: 0010 imm:4 Rs:4 Rd:4
     code: |
-      Rs = load(Rs + sign_extend(imm, 4) * 4, WORD);
+      set_reg(Rd, load(get_reg(Rs) + sign_extend(imm, 4) * 4, WORD));
   - name: st Rd, 4*imm(Rs)
     pattern: 0011 imm:4 Rs:4 Rd:4
     code: |
-      store(Rs + sign_extend(imm, 4) * 4, WORD, Rd);
+      store(get_reg(Rs) + sign_extend(imm, 4) * 4, WORD, Rd);
   # TODO: What about add+shl?
   - name: <op> Rd, Rs
     pattern: 010 op:5 Rs:4 Rd:4
     code: |
-      scalar_op(op, &Rd, Rd, Rs);
+      scalar_op(op, Rd, get_reg(Rd), get_reg(Rs));
   - name: <op> Rd, imm
     pattern: 011 op:4 imm:5 Rd:4
     code: |
-      scalar_op(op * 2, &Rd, Rd, sign_extend_5(imm));
+      scalar_op(op * 2, Rd, get_reg(Rd), imm);
 
   # 32-bit branch instructions
   - name: addcmpb<cond> Rd, Ra, Rs, 2*offset + pc
     pattern: 1000 cond:4 Ra:4 Rd:4 00 Rs:4 offset:10
     code: |
-      Rd = Rd + Ra;
-      if (condition_passed(cond, condition_flags((int64_t)Rd - Rs))) {
-          pc = (pc - 4) + 2 * sign_extend_10(offset);
+      set_reg(Rd, get_reg(Rd) + get_reg(Ra));
+      if (condition_passed(cond, condition_flags((int64_t)get_reg(Rd) - get_reg(Rs)))) {
+          set_reg(pc, get_reg(pc) + 2 * sign_extend_10(offset));
       }
   - name: addcmpb<cond> Rd, imm, Rs, 2*offset + pc
     pattern: 1000 cond:4 imm:4 Rd:4 01 Rs:4 offset:10
     code: |
-      Rd = Rd + sign_extend_4(imm);
-      if (condition_passed(cond, condition_flags((int64_t)Rd - Rs))) {
-          pc = (pc - 4) + 2 * sign_extend_10(offset);
+      set_reg(Rd, get_reg(Rd) + sign_extend_4(imm));
+      if (condition_passed(cond, condition_flags((int64_t)get_reg(Rd) - get_reg(Rs)))) {
+          set_reg(pc, get_reg(pc) + 2 * sign_extend_10(offset));
       }
   - name: addcmpb<cond> Rd, Ra, imm, 2*offset + pc
     pattern: 1000 cond:4 Ra:4 Rd:4 10 imm:6 offset:8
     code: |
-      Rd = Rd + Ra;
-      if (condition_passed(cond, condition_flags((int64_t)Rd -  sign_extend_6(imm)))) {
-          pc = (pc - 4) + 2 * sign_extend_8(offset);
+      set_reg(Rd, get_reg(Rd) + sign_extend_4(imm));
+      if (condition_passed(cond, condition_flags((int64_t)get_reg(Rd) -  sign_extend_6(imm)))) {
+          set_reg(pc, get_reg(pc) + 2 * sign_extend_8(offset));
       }
   - name: addcmpb<cond> Rd, imm1, imm2, 2*offset + pc
     pattern: 1000 cond:4 imm1:4 Rd:4 11 imm2:6 offset:8
     code: |
-      Rd = Rd + sign_extend_4(imm1);
-      if (condition_passed(cond, condition_flags((int64_t)Rd - sign_extend_6(imm2)))) {
-          pc = (pc - 4) + 2 * sign_extend_8(offset);
+      set_reg(Rd, get_reg(Rd) + sign_extend_4(imm1));
+      if (condition_passed(cond, condition_flags((int64_t)get_reg(Rd) - sign_extend_6(imm2)))) {
+          set_reg(pc, get_reg(pc) + 2 * sign_extend_8(offset));
       }
   - name: b<cond> 2*offset + pc
     pattern: 1001 cond:4 0 offset:23
     code: |
-      if (condition_passed(cond, sr)) {
-          pc = (pc - 4) + 2 * sign_extend_23(offset);
+      if (condition_passed(cond, get_reg(sr))) {
+          set_reg(pc,  get_reg(pc) + 2 * sign_extend_23(offset));
       }
   - name: bl 2*offset + pc
     pattern: 1001 offset1:4 1 offset2:23
     code: |
-      lr = pc + 4;
-      pc = (pc - 4) + 2 * ((sign_extend_4(offset1) << 23) | offset2);
+      set_reg(lr, get_reg(pc) + 4);
+      set_reg(pc, get_reg(pc) + 2 * ((sign_extend_4(offset1) << 23) | offset2));
 
   # 32-bit load/store instructions
   - name: ld<size><cond> Rd, (Ra, Rb)
@@ -708,181 +713,181 @@ instructions:
       Imagine some text about load with scaled indexed address mode here.
     format: ld%s{format}%s{cond} r%i{Rd}, (r%i{Ra}, r%i{Rb})
     code: |
-      if (condition_passed(cond, sr)) {
-          if (&Ra == &pc) {
+      if (condition_passed(cond, get_reg(sr))) {
+          if (Ra == pc) {
               /* TODO: this should be a normal interrupt */
               error("tried to modifiy pc");
           } else {
-              Rd = load(Ra + size(format) * Rb, format);
+              set_reg(Rd, load(get_reg(Ra) + size(format) * get_reg(Rb), format));
           }
       }
   - name: st<size><cond> Rd, (Ra, Rb)
     pattern: 1010 0000 format:2 1 Rd:5 Ra:5 cond:4 00 Rb:5
     code: |
-      if (condition_passed(cond, sr)) {
-          store(Ra + size(format) * Rb, format, Rd);
+      if (condition_passed(cond, get_reg(sr))) {
+          store(get_reg(Ra) + size(format) * get_reg(Rb), format, get_reg(Rd));
       }
   - name: ld<size><cond> Rd, imm(Ra)
     pattern: 1010 0000 format:2 0 Rd:5 Ra:5 cond:4 10 imm:5
     code: |
-      if (condition_passed(cond, sr)) {
-          Rd = load(Ra + imm, format);
+      if (condition_passed(cond, get_reg(sr))) {
+          set_reg(Rd, load(get_reg(Ra) + imm, format));
       }
   - name: st<size><cond> Rd, imm(Ra)
     pattern: 1010 0000 format:2 1 Rd:5 Ra:5 cond:4 10 imm:5
     code: |
-      if (condition_passed(cond, sr)) {
-          store(Ra + imm, format, Rd);
+      if (condition_passed(cond, get_reg(sr))) {
+          store(get_reg(Ra) + imm, format, get_reg(Rd));
       }
   - name: ld<size> Rd, offset(Rs)
     pattern: 1010 001 offset1:1 format:2 0 Rd:5 Rs:5 offset2:11
     code: |
-      Rd = load(Rs + ((sign_extend_1(offset1) << 11) | offset2), format);
+      set_reg(Rd, load(get_reg(Rs) + ((sign_extend_1(offset1) << 11) | offset2), format));
   - name: st<size> Rd, offset(Rs)
     pattern: 1010 001 offset1:1 format:2 1 Rd:5 Rs:5 offset2:11
     code: |
-      store(Rs + ((sign_extend_1(offset1) << 11) | offset2), format, Rd);
+      store(get_reg(Rs) + ((sign_extend_1(offset1) << 11) | offset2), format, get_reg(Rd));
   - name: ld<size><cond> Rd, --(Ra)
     pattern: 1010 0100 format:2 0 Rd:5 Ra:5 cond:4 000 0000
     code: |
-      if (condition_passed(cond, sr)) {
-          Ra = Ra - size(format);
-          Rd = load(Ra, format);
+      if (condition_passed(cond, get_reg(sr))) {
+          set_reg(Ra, get_reg(Ra) - size(format));
+          set_reg(Rd, load(get_reg(Ra), format));
       }
   - name: st<size><cond> Rd, --(Ra)
     pattern: 1010 0100 format:2 1 Rd:5 Ra:5 cond:4 000 0000
     code: |
-      if (condition_passed(cond, sr)) {
-          Ra = Ra - size(format);
-          store(Ra, format, Rd);
+      if (condition_passed(cond, get_reg(sr))) {
+          set_reg(Ra, get_reg(Ra) - size(format));
+          store(get_reg(Ra), format, get_reg(Rd));
       }
   - name: ld<size><cond> Rd, (Ra)++
     pattern: 1010 0101 format:2 0 Rd:5 Ra:5 cond:4 000 0000
     code: |
-      if (condition_passed(cond, sr)) {
-          Rd = load(Ra, format);
-          Ra = Ra + size(format);
+      if (condition_passed(cond, get_reg(sr))) {
+          set_reg(Rd, load(get_reg(Ra), format));
+          set_reg(Ra, get_reg(Ra) + size(format));
       }
   - name: st<size><cond> Rd, (Ra)++
     pattern: 1010 0101 format:2 1 Rd:5 Ra:5 cond:4 000 0000
     code: |
-      if (condition_passed(cond, sr)) {
-          store(Ra, format, Rd);
-          Ra = Ra + size(format);
+      if (condition_passed(cond, get_reg(sr))) {
+          store(get_reg(Ra), format, get_reg(Rd));
+          set_reg(Ra, get_reg(Ra) + size(format));
       }
   - name: ld<size> Rd, offset(Rs)
     pattern: 1010 10 base:2 format:2 0 Rd:5 offset:16
     code: |
       int base_reg[] = {24, 25, 31, 0};
-      Rd = load(regs[base_reg[base]] + sign_extend_16(offset), format);
+      set_reg(Rd, load(get_reg(base_reg[base]) + sign_extend_16(offset), format));
   - name: st<size> Rd, offset(Rs)
     pattern: 1010 10 base:2 format:2 1 Rd:5 offset:16
     code: |
       int base_reg[] = {24, 25, 31, 0};
-      store(regs[base_reg[base]] + sign_extend_16(offset), format, Rd);
+      store(get_reg(base_reg[base]) + sign_extend_16(offset), format, get_reg(Rd));
 
   # 32-bit arithmetic instructions
   - name: <op> Rd, imm
     pattern: 1011 00 op:5 Rd:5 imm:16
     code: |
-      scalar_op(op, &Rd, Rd, sign_extend_16(imm));
+      scalar_op(op, Rd, get_reg(Rd), sign_extend_16(imm));
   - name: lea Rd, offset(Rs)
     pattern: 1011 01 Rs:5 Rd:5 offset:16
     code: |
-      Rd = Rs + sign_extend_16(offset);
+      set_reg(Rd, get_reg(Rs) + sign_extend_16(offset));
   - name: lea Rd, offset(pc)
     pattern: 1011 1111 111 Rd:5 offset:16
     code: |
-      Rd = pc + sign_extend_16(offset);
+      set_reg(Rd, get_reg(pc) + sign_extend_16(offset));
   - name: <op><cond> Rd, Ra, Rb
     pattern: 1100 00 op:5 Rd:5 Ra:5 cond:4 00 Rb:5
     code: |
-      if (condition_passed(cond, sr)) {
-        scalar_op(op, &Rd, Ra, Rb);
+      if (condition_passed(cond, get_reg(sr))) {
+        scalar_op(op, Rd, get_reg(Ra), get_reg(Rb));
       }
   - name: <op><cond> Rd, Ra, imm
     pattern: 1100 00 op:5 Rd:5 Ra:5 cond:4 1 imm:6
     code: |
-      if (condition_passed(cond, sr)) {
-        scalar_op(op, &Rd, Ra, sign_extend_6(imm));
+      if (condition_passed(cond, get_reg(sr))) {
+        scalar_op(op, Rd, get_reg(Ra), sign_extend_6(imm));
       }
 
   # mulhd variants
   - name: mulhd<u/s><u/s><cond> Rd, Ra, Rb 
     pattern: 1100 0100 0 unsigned1:1 unsigned2:1 Rd:5 Ra:5 cond:4 00 Rb:5
     code: |
-      if (condition_passed(cond, sr)) {
+      if (condition_passed(cond, get_reg(sr))) {
           if (unsigned1 && unsigned2) {
-              Rd = (to_uint64(Ra) * to_uint64(Rb)) >> 32;
+              set_reg(Rd, (to_uint64(get_reg(Ra)) * to_uint64(get_reg(Rb))) >> 32);
           } else if (unsigned1) {
-              Rd = (to_uint64(Ra) * to_int64(Rb)) >> 32;
+              set_reg(Rd, (to_uint64(get_reg(Ra)) * to_int64(get_reg(Rb))) >> 32);
           } else if (unsigned2) {
-              Rd = (to_int64(Ra) * to_uint64(Rb)) >> 32;
+              set_reg(Rd, (to_int64(get_reg(Ra)) * to_uint64(get_reg(Rb))) >> 32);
           } else {
-              Rd = (to_int64(Ra) * to_int64(Rb)) >> 32;
+              set_reg(Rd, (to_int64(get_reg(Ra)) * to_int64(get_reg(Rb))) >> 32);
           }
       }
   - name: mulhd<u/s><u/s><cond> Rd, Ra, imm 
     pattern: 1100 0100 0 unsigned1:1 unsigned2:1 Rd:5 Ra:5 cond:4 1 imm:6
     code: |
-      if (condition_passed(cond, sr)) {
+      if (condition_passed(cond, get_reg(sr))) {
           if (unsigned1 && unsigned2) {
-              Rd = (to_uint64(Ra) * (to_uint64(sign_extend_6(imm)) & 0xffffffff)) >> 32;
+              set_reg(Rd, (to_uint64(get_reg(Ra)) * (to_uint64(sign_extend_6(imm)) & 0xffffffff)) >> 32);
           } else if (unsigned1) {
-              Rd = (to_uint64(Ra) * to_int64(sign_extend_6(imm))) >> 32;
+              set_reg(Rd, (to_uint64(get_reg(Ra)) * to_int64(sign_extend_6(imm))) >> 32);
           } else if (unsigned2) {
-              Rd = (to_int64(Ra) * (to_uint64(sign_extend_6(imm)) & 0xffffffff)) >> 32;
+              set_reg(Rd, (to_int64(get_reg(Ra)) * (to_uint64(sign_extend_6(imm)) & 0xffffffff)) >> 32);
           } else {
-              Rd = (to_int64(Ra) * to_int64(sign_extend_6(imm))) >> 32;
+              set_reg(Rd, (to_int64(get_reg(Ra)) * to_int64(sign_extend_6(imm))) >> 32);
           }
       }
   # div variants
   - name: div<u/s><u/s><cond> Rd, Ra, Rb 
     pattern: 1100 0100 1 unsigned1:1 unsigned2:1 Rd:5 Ra:5 cond:4 00 Rb:5
     code: |
-      if (condition_passed(cond, sr)) {
+      if (condition_passed(cond, get_reg(sr))) {
           if (unsigned1 && unsigned2) {
-              Rd = to_uint64(Ra) / to_uint64(Rb);
+              set_reg(Rd, to_uint64(get_reg(Ra)) / to_uint64(get_reg(Rb)));
           } else if (unsigned1) {
-              Rd = to_uint64(Ra) / to_int64(Rb);
+              set_reg(Rd, to_uint64(get_reg(Ra)) / to_int64(get_reg(Rb)));
           } else if (unsigned2) {
-              Rd = to_int64(Ra) / to_uint64(Rb);
+              set_reg(Rd, to_int64(get_reg(Ra)) / to_uint64(get_reg(Rb)));
           } else {
-              Rd = to_int64(Ra) / to_int64(Rb);
+              set_reg(Rd, to_int64(get_reg(Ra)) / to_int64(get_reg(Rb)));
           }
       }
   - name: div<u/s><u/s><cond> Rd, Ra, imm 
     pattern: 1100 0100 1 unsigned1:1 unsigned2:1 Rd:5 Ra:5 cond:4 1 imm:6
     code: |
-      if (condition_passed(cond, sr)) {
+      if (condition_passed(cond, get_reg(sr))) {
           if (unsigned1 && unsigned2) {
-              Rd = to_uint64(Ra) / sign_extend_6(imm);
+              set_reg(Rd, to_uint64(get_reg(Ra)) / sign_extend_6(imm));
           } else if (unsigned1) {
-              Rd = to_uint64(Ra) / to_int64(sign_extend_6(imm));
+              set_reg(Rd, to_uint64(get_reg(Ra)) / to_int64(sign_extend_6(imm)));
           } else if (unsigned2) {
-              Rd = to_int64(Ra) / sign_extend_6(imm);
+              set_reg(Rd, to_int64(get_reg(Ra)) / sign_extend_6(imm));
           } else {
-              Rd = to_int64(Ra) / to_int64(sign_extend_6(imm));
+              set_reg(Rd, to_int64(get_reg(Ra)) / to_int64(sign_extend_6(imm)));
           }
       }
   - name: add<cond> Rd, Ra, Rb shl 8 
     pattern: 1100 0101 111 Rd:5 Ra:5 cond:4 00 Rb:5
     code: |
-      if (condition_passed(cond, sr)) {
-          Rd = Ra + (Rb << 8);
+      if (condition_passed(cond, get_reg(sr))) {
+          set_reg(Rd, get_reg(Ra) + (get_reg(Rb) << 8));
       }
 
   # floating point instructions
   - name: <fop><cond> Rd, Ra, Rb
     pattern: 1100 100 fop:4 Rd:5 Ra:5 cond:4 00 Rb:5
     code: |
-      if (condition_passed(cond, sr)) {
-        float_op(fop, (float*)&Rd, *(float*)&Ra, *(float*)&Rb);
+      if (condition_passed(cond, get_reg(sr))) {
+        float_op(fop, Rd, int_to_float(get_reg(Ra)), int_to_float(get_reg(Rb)));
       }
   - name: <fop><cond> Rd, Ra, imm
     pattern: 1100 100 fop:4 Rd:5 Ra:5 cond:4 1 imm:6
     code: |
-      if (condition_passed(cond, sr)) {
+      if (condition_passed(cond, get_reg(sr))) {
         uint32_t b = 0;
         if (imm & 0x20) {
             b |= 0x80000000;
@@ -893,30 +898,30 @@ instructions:
             int mantissa = imm & 0x3;
             b |= mantissa << 21;
         }
-        float_op(fop, (float*)&Rd, *(float*)&Ra, *(float*)&b);
+        float_op(fop, Rd, int_to_float(get_reg(Ra)), int_to_float(b));
       }
   - name: ftrunc<cond> Rd, Ra, lsl imm
     pattern: 1100 1010 000 Rd:5 Ra:5 cond:4 1 imm:6
     code: |
-      if (condition_passed(cond, sr)) {
+      if (condition_passed(cond, get_reg(sr))) {
         error("TBD");
       }
   - name: floor<cond> Rd, Ra, lsl imm
     pattern: 1100 1010 001 Rd:5 Ra:5 cond:4 1 imm:6
     code: |
-      if (condition_passed(cond, sr)) {
+      if (condition_passed(cond, get_reg(sr))) {
         error("TBD");
       }
   - name: flts<cond> Rd, Ra, lsr imm
     pattern: 1100 1010 010 Rd:5 Ra:5 cond:4 1 imm:6
     code: |
-      if (condition_passed(cond, sr)) {
+      if (condition_passed(cond, get_reg(sr))) {
         error("TBD");
       }
   - name: fltu<cond> Rd, Ra, lsr imm
     pattern: 1100 1010 011 Rd:5 Ra:5 cond:4 1 imm:6
     code: |
-      if (condition_passed(cond, sr)) {
+      if (condition_passed(cond, get_reg(sr))) {
         error("TBD");
       }
 
@@ -924,28 +929,28 @@ instructions:
   - name: lea Rd, offset(pc)
     pattern: 1110 0101 000 Rd:5 offset1:16 offset2:16
     code: |
-      Rd = pc + (offset2 << 16) + offset1;
+      set_reg(Rd, get_reg(pc) + (offset2 << 16) + offset1);
   - name: ld Rd, offset(Rs)
     pattern: 1110 0110 format:2 0 Rd:5 offset1:16 Rs:5 offset2:11
     code: |
-      Rd = load(Rs + (offset2 << 16) + offset1, format);
+      set_reg(Rd, load(get_reg(Rs) + (offset2 << 16) + offset1, format));
   - name: st Rd, offset(Rs)
     pattern: 1110 0110 format:2 1 Rd:5 offset1:16 Rs:5 offset2:11
     code: |
-      store(Rs + (offset2 << 16) + offset1, format, Rd);
+      store(get_reg(Rs) + (offset2 << 16) + offset1, format, get_reg(Rd));
   - name: ld Rd, offset(Rs)
     pattern: 1110 0111 format:2 0 Rd:5 offset1:16 11111 offset2:11
     code: |
-      Rd = load(pc + (offset2 << 16) + offset1, format);
+      set_reg(Rd, load(get_reg(pc) + (offset2 << 16) + offset1, format));
   - name: st Rd, offset(Rs)
     pattern: 1110 0111 format:2 1 Rd:5 offset1:16 11111 offset2:11
     code: |
-      store(pc + (offset2 << 16) + offset1, format, Rd);
+      store(get_reg(pc) + (offset2 << 16) + offset1, format, get_reg(Rd));
   - name: <op> Rd, imm
     pattern: 1110 10 op:5 Rd:5 imm1:16 imm2:16
     code: |
-      scalar_op(op, &Rd, Rd, (imm2 << 16) | imm1);
+      scalar_op(op, Rd, get_reg(Rd), (imm2 << 16) | imm1);
   - name: add Rd, Rs, imm
     pattern: 1110 11 Rs:5 Rd:5 imm1:16 imm2:16
     code: |
-      Rd = Rs + ((imm2 << 16) | imm1);
+      set_reg(Rd, get_reg(Rs) + ((imm2 << 16) | imm1));

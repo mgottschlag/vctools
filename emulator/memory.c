@@ -24,6 +24,7 @@ static const struct device_region devices[] = {
 	{ VC_GPIO__ADDRESS, VC_GPIO__SIZE, gpio_load, gpio_store },
 	{ VC_TIMER__ADDRESS, VC_TIMER__SIZE, timer_load, timer_store },
 	{ VC_CM__ADDRESS, VC_CM__SIZE, cm_load, cm_store },
+	{ VC_INTE__ADDRESS, VC_INTE__SIZE, inte_load, inte_store },
 };
 
 #define DEVICE_COUNT (sizeof(devices) / sizeof(devices[0]))
@@ -32,7 +33,7 @@ static int is_in_region(uint32_t address,
                         uint32_t size,
                         uint32_t start,
                         uint32_t end) {
-	if (address < start || address + size > end) {
+	if (address < start || (uint64_t)address + size > end) {
 		return 0;
 	} else {
 		return 1;
@@ -85,8 +86,8 @@ uint32_t vc4_emul_load(void *user_data,
 		/* TODO: interrupt number? */
 		vc4_emul_interrupt(emul->vc4, 0, "Invalid load address.");
 	}
-	/*printf("%08x\n", value);*/
 	value &= 0xffffffff >> ((4 - size) * 8);
+	/*printf("load %08x %08x\n", address, value);*/
 	return value;
 }
 
@@ -97,6 +98,7 @@ void vc4_emul_store(void *user_data,
 	struct bcm2835_emul *emul = user_data;
 	char *dest;
 	unsigned int i;
+	printf("store %08x %08x\n", address, value);
 	if (is_in_region(address, size, 0x60000000, 0x60008800)) {
 		dest = emul->bootram + (address & 0xffff);
 	} else if (is_in_region(address & 0x3fffffff, size, 0x0, DRAM_SIZE)) {

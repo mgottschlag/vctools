@@ -6,6 +6,8 @@
 #include <stddef.h>
 
 #include "devices/cm.h"
+#include "devices/gpio.h"
+#include "devices/inte.h"
 
 struct vc4_emul;
 
@@ -16,6 +18,8 @@ struct bcm2835_emul {
 	char *bootram;
 
 	struct cm_data cm;
+	struct gpio_data gpio;
+	struct inte_data inte;
 };
 
 void memory_init(struct bcm2835_emul *emul);
@@ -47,6 +51,10 @@ void timer_store(struct bcm2835_emul *emul, uint32_t address, uint32_t value);
 void cm_init(struct bcm2835_emul *emul);
 uint32_t cm_load(struct bcm2835_emul *emul, uint32_t address);
 void cm_store(struct bcm2835_emul *emul, uint32_t address, uint32_t value);
+
+void inte_init(struct bcm2835_emul *emul);
+uint32_t inte_load(struct bcm2835_emul *emul, uint32_t address);
+void inte_store(struct bcm2835_emul *emul, uint32_t address, uint32_t value);
 
 #endif
 

@@ -106,7 +106,7 @@ int main(int argc, char **argv) {
 	gpio_init(emul);
 	timer_init(emul);
 	cm_init(emul);
-	/* TODO */
+	inte_init(emul);
 	/* load the boot code into memory */
 	if (rom_file != NULL) {
 		if (load_file(emul, rom_file, 0x60000000) != 0) {

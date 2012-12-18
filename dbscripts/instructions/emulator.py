@@ -95,42 +95,43 @@ file_header = """
 #include <math.h>
 
 struct vc4_emul {
-	void *user_data;
+    void *user_data;
 
-	uint32_t scalar_regs[32];
+    uint32_t scalar_regs[32];
+    int pc_changed;
 
-	uint32_t ivt;
+    uint32_t ivt;
 
-	sigjmp_buf exception_handler;
+    sigjmp_buf exception_handler;
 };
 
 struct vc4_emul *vc4_emul_init(void *user_data) {
-	struct vc4_emul *emul = calloc(1, sizeof(struct vc4_emul));
-	emul->user_data = user_data;
-	return emul;
+    struct vc4_emul *emul = calloc(1, sizeof(struct vc4_emul));
+    emul->user_data = user_data;
+    return emul;
 }
 void vc4_emul_free(struct vc4_emul *emul) {
-	free(emul);
+    free(emul);
 }
 
 void vc4_emul_exec(struct vc4_emul *emul, unsigned int steps) {
-	unsigned int i;
-	for (i = 0; i < steps; i++) {
-		vc4_emul_step(emul);
-	}
+    unsigned int i;
+    for (i = 0; i < steps; i++) {
+        vc4_emul_step(emul);
+    }
 }
 
 void vc4_emul_exception(struct vc4_emul *emul,
                         unsigned int interrupt,
                         const char *reason) {
-	int i;
-	printf("Exception %d: %s\\n", interrupt, reason);
-	for (i = 0; i < 32; i++) {
-		printf("  r%d = %08x\\n", i, emul->scalar_regs[i]);
-	}
+    uint16_t instr;
+    int i;
+    printf("Exception %d: %s\\n", interrupt, reason);
+    for (i = 0; i < 32; i++) {
+        printf("  r%d = %08x\\n", i, emul->scalar_regs[i]);
+    }
 
-    /* TODO */
-    assert(0 && "Not implemented.");
+    siglongjmp(emul->exception_handler, interrupt + 1);
 }
 
 void vc4_emul_interrupt(struct vc4_emul *emul,
@@ -147,11 +148,11 @@ void vc4_emul_interrupt(struct vc4_emul *emul,
 }
 
 void vc4_emul_set_scalar_reg(struct vc4_emul *emul, int reg, uint32_t value) {
-	assert(reg > 0 && reg < 32);
+	assert(reg >= 0 && reg < 32);
 	emul->scalar_regs[reg] = value;
 }
 uint32_t vc4_emul_get_scalar_reg(struct vc4_emul *emul, int reg) {
-	assert(reg > 0 && reg < 32);
+	assert(reg >= 0 && reg < 32);
 	return emul->scalar_regs[reg];
 }
 
@@ -186,13 +187,31 @@ static uint32_t condition_flags(uint64_t cmp_result) {
 #define BYTE 2
 #define SIGNED_HALFWORD 3
 /* registers */
-#define reg (emul->scalar_regs)
-#define pc (emul->scalar_regs[31])
-#define sr (emul->scalar_regs[30])
-#define sp (emul->scalar_regs[25])
-#define lr (emul->scalar_regs[26])
-#define r15 (emul->scalar_regs[15])
-#define regs (emul->scalar_regs)
+#define pc (31)
+#define sr (30)
+#define sp (25)
+#define lr (26)
+#define r15 (15)
+static uint32_t get_reg(struct vc4_emul *emul, int reg) {
+    assert(reg >= 0 && reg <= 31);
+    if ((emul->scalar_regs[30] & (1 << 30)) != 0 && reg == 25) {
+        reg = 28;
+    }
+    return emul->scalar_regs[reg];
+}
+static void set_reg(struct vc4_emul *emul, int reg, uint32_t value) {
+    assert(reg >= 0 && reg <= 31);
+    if ((emul->scalar_regs[30] & (1 << 30)) != 0 && reg == 25) {
+        reg = 28;
+    }
+    if (reg == 31) {
+        emul->pc_changed = 1;
+    }
+    /*printf("r%d <= %08x\\n", reg, value);*/
+    emul->scalar_regs[reg] = value;
+}
+#define get_reg(reg) get_reg(emul, reg)
+#define set_reg(reg, value) set_reg(emul, reg, value)
 /* sign extension */
 static inline uint32_t sign_extend(uint32_t value, int bits) {
     if (value & (1 << (bits - 1))) {
@@ -235,12 +254,14 @@ static inline uint32_t sign_extend(uint32_t value, int bits) {
 /* type conversion */
 #define to_uint64(x) (uint64_t)(x)
 #define to_int64(x) (int64_t)(int32_t)(x)
-/* interrupts/exceptions */
-static void interrupt(struct vc4_emul *emul, int index, const char *reason) {
-    /* TODO */
-    assert(0 && "Not implemented!");
+float int_to_float(uint32_t x) {
+    return *(float*)&x;
 }
-#define interrupt(index, reason) vc4_emul_interrupt(emul, index, reason)
+int32_t float_to_int(float x) {
+    return *(int32_t*)&x;
+}
+/* interrupts/exceptions */
+#define interrupt(index, reason) vc4_emul_exception(emul, index, reason)
 /* fatal errors */
 static void error(struct vc4_emul *emul, const char *reason) {
     /* TODO */
@@ -291,12 +312,12 @@ static void store(struct vc4_emul *emul,
 #define store(address, format, value) store(emul, address, format, value)
 /* push/pop */
 static void push(struct vc4_emul *emul, uint32_t value) {
-    sp = sp - 4;
-    store(sp, WORD, value);
+    set_reg(sp, get_reg(sp) - 4);
+    store(get_reg(sp), WORD, value);
 }
 static uint32_t pop(struct vc4_emul *emul) {
-    uint32_t value = load(sp, WORD);
-    sp = sp + 4;
+    uint32_t value = load(get_reg(sp), WORD);
+    set_reg(sp, get_reg(sp) + 4);
     return value;
 }
 #define push(x) push(emul, x)
@@ -313,27 +334,60 @@ step_function = """
 void vc4_emul_step(struct vc4_emul *emul) {
     uint16_t instr[3];
     uint32_t old_pc;
+    uint32_t old_sr = emul->scalar_regs[25];
     int instr_size = 2;
     /* handle exceptions which occur during execution */
-    if (sigsetjmp(emul->exception_handler, 0) != 0) {
-        /* TODO: handle the exception */
-        assert(0 && "Not implemented!");
+    int exception_index = sigsetjmp(emul->exception_handler, 0);
+    if (exception_index != 0) {
+        uint32_t ivt = vc4_emul_get_ivt_address(emul->user_data);
+        uint32_t int_stack = emul->scalar_regs[28];
+        printf("Exception %d\\n", exception_index);
+        /* increment pc */
+        instr[0] = load(get_reg(pc), HALFWORD);
+        set_reg(pc, get_reg(pc) + 2);
+        if (instr[0] & 0x8000) {
+            set_reg(pc, get_reg(pc) + 2);
+            if (instr[0] > 0xe000) {
+                set_reg(pc, get_reg(pc) + 2);
+            }
+        }
+        /* push pc and sr onto the stack */
+        store(int_stack - 4, WORD, get_reg(pc));
+        store(int_stack - 8, WORD, get_reg(sr));
+        emul->scalar_regs[28] = int_stack - 8;
+        /* load new pc and sr */
+        set_reg(pc, load(ivt + (exception_index - 1) * 4, WORD));
+        /* TODO: correct bit? */
+        set_reg(sr, get_reg(sr) | (1 << 30));
+        return;
     }
     /* fetch the instruction */
-    old_pc = pc;
-    instr[0] = load(pc, HALFWORD);
+    emul->pc_changed = 0;
+    old_pc = get_reg(pc);
+    instr[0] = load(get_reg(pc), HALFWORD);
     if (instr[0] & 0x8000) {
-        instr[1] = load(pc + 2, HALFWORD);
+        instr[1] = load(get_reg(pc) + 2, HALFWORD);
         instr_size = 4;
         if (instr[0] > 0xe000) {
-            instr[2] = load(pc + 4, HALFWORD);
+            instr[2] = load(get_reg(pc) + 4, HALFWORD);
             instr_size = 6;
         }
     }
+    /* switch r25 to r28 if necessary */
+    /* TODO */
     /* decode and execute the instruction */
-    decode_instruction(emul, instr);
+    if (get_reg(sr) & (1 << 30)) {
+        uint32_t old_sp = emul->scalar_regs[25];
+        emul->scalar_regs[25] = emul->scalar_regs[28];
+        decode_instruction(emul, instr);
+        emul->scalar_regs[25] = old_sp;
+    } else {
+        decode_instruction(emul, instr);
+    }
     /* increase the program counter */
-    pc = pc + instr_size;
+    if (emul->pc_changed == 0) {
+        set_reg(pc, get_reg(pc) + instr_size);
+    }
 }
 
 """
@@ -511,7 +565,7 @@ def generateEmulator(db, filename, include_filename, vcdbdir):
             # Declare and compute the parameters
             for parameter in instr.parameters:
                 if parameter.name[0] == 'R':
-                    text += '    uint32_t ' + parameter.name + '_index = '
+                    text += '    int ' + parameter.name + ' = '
                 else:
                     text += '    uint32_t ' + parameter.name + ' = '
                 first_word = parameter.offset // 16
@@ -545,10 +599,6 @@ def generateEmulator(db, filename, include_filename, vcdbdir):
                     elif shift > 0:
                         text += ' >> ' + str(shift) + ')'
                 text += ';\n'
-                if parameter.name[0] == 'R':
-                    text += '    #define ' + parameter.name
-                    text += ' (emul->scalar_regs[' + parameter.name
-                    text += '_index])\n'
             # Insert the actual instruction implementation
             text += '    {\n' + indent_instruction(instr.code) + '\n    }\n'
             for parameter in instr.parameters:
