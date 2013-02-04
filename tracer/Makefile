@@ -9,7 +9,7 @@ vcregs.inc: ../vcdb/*.yaml
 
 obj/%.o: %.s vcregs.inc
 	@mkdir -p obj
-	vc4-as $^ -o $@
+	vc4-as $< -o $@
 
 # bootloader
 
@@ -31,4 +31,6 @@ obj/draminit.bin: obj/draminit.o
 bin/tracer.bin: obj/tracer.o
 	@mkdir -p bin
 	vc4-ld -T program.ld -o $@ $^
+
+obj/tracer.o: tracer_scalar16.s tracer_scalar32.s tracer_scalar48.s tracer_load_store_emul.s
 
