@@ -306,7 +306,7 @@ function_lists:
         code_name: exts
         code: |
           void exts(int d, int32_t a, int32_t b) {
-              set_reg(d, sign_extend(a, b));
+              set_reg(d, sign_extend(a, b + 1));
           }
       - name: neg
         brief: Negate
@@ -419,7 +419,16 @@ function_lists:
         code_name: fcmp
         code: |
           void fcmp(int d, float a, float b) {
-              error("TBD");
+              float difference = a - b;
+              uint32_t flags;
+              /* TODO */
+              if (difference == 0.0f) {
+                  flags |= 8; /* Z */
+              }
+              if (difference < 0.0f) {
+                  flags |= 4; /* N */
+              }
+              set_reg(sr, (get_reg(sr) & ~0xf) | flags);
           }
       - name: _fabs
         brief: Absolute Value
@@ -484,19 +493,19 @@ function_lists:
           void fld1(int d, float a, float b) {
               set_reg(d, float_to_int(1.0f));
           }
-      - name: fop14
-        brief: Unknown Operation 14
-        code_name: fop14
+      - name: flog2
+        brief: Binary Logarithmic Function log_2(b)
+        code_name: flog2
         code: |
-          void fop14(int d, float a, float b) {
-              error("TBD");
+          void flog2(int d, float a, float b) {
+              set_reg(d, float_to_int(pow(2.0, b)));
           }
-      - name: fop14
-        brief: Unknown Operation 15
-        code_name: fop14
+      - name: fexp2
+        brief: Exponential Function 2^b
+        code_name: fexp2
         code: |
-          void fop15(int d, float a, float b) {
-              error("TBD");
+          void fexp2(int d, float a, float b) {
+              set_reg(d, float_to_int(log(b) / log(2.0)));
           }
   vector_op:
     name: Vector Binary Arithmetic/Logical Operations
@@ -570,17 +579,19 @@ instructions:
     pattern: 0000 0001 11 imm:6
     code: |
       interrupt(0x20 + (imm & 31), "swi");
-  # TODO: push/pop with only pc/lr
   - name: push
     pattern: 0000 001 with_lr:1 1 first:2 count:5
     code: |
-      int first_register[] = {0, 6, 18, 24};
+      int first_register[] = {0, 6, 16, 24};
       int i;
       uint32_t old_sp = get_reg(sp);
       if (with_lr) {
           count = (count + 1) & 31;
       } else {
           count = count + 1;
+      }
+      if (with_lr) {
+          push(get_reg(lr));
       }
       for (i = 0; i < count; i++) {
           int reg_index = (first_register[first] + i) & 31;
@@ -590,13 +601,10 @@ instructions:
               push(get_reg(reg_index));
           }
       }
-      if (with_lr) {
-          push(get_reg(lr));
-      }
   - name: pop
     pattern: 0000 001 with_pc:1 0 first:2 count:5
     code: |
-      int first_register[] = {0, 6, 18, 24};
+      int first_register[] = {0, 6, 16, 24};
       int i;
       uint32_t next_sp;
       if (with_pc) {
@@ -619,6 +627,9 @@ instructions:
           } else {
               set_reg(reg_index, pop());
           }
+      }
+      if (with_pc) {
+          set_reg(pc, pop());
       }
       set_reg(sp, next_sp);
   - name: ld Rd, offset(sp)
@@ -650,7 +661,7 @@ instructions:
   - name: ld Rd, 4*imm(Rs)
     pattern: 0010 imm:4 Rs:4 Rd:4
     code: |
-      set_reg(Rd, load(get_reg(Rs) + sign_extend(imm, 4) * 4, WORD));
+      set_reg(Rd, load(get_reg(Rs) + imm * 4, WORD));
   - name: st Rd, 4*imm(Rs)
     pattern: 0011 imm:4 Rs:4 Rd:4
     code: |
@@ -684,14 +695,14 @@ instructions:
     pattern: 1000 cond:4 Ra:4 Rd:4 10 imm:6 offset:8
     code: |
       set_reg(Rd, get_reg(Rd) + sign_extend_4(imm));
-      if (condition_passed(cond, condition_flags((int64_t)get_reg(Rd) -  sign_extend_6(imm)))) {
+      if (condition_passed(cond, condition_flags((int64_t)get_reg(Rd) -  imm))) {
           set_reg(pc, get_reg(pc) + 2 * sign_extend_8(offset));
       }
   - name: addcmpb<cond> Rd, imm1, imm2, 2*offset + pc
     pattern: 1000 cond:4 imm1:4 Rd:4 11 imm2:6 offset:8
     code: |
       set_reg(Rd, get_reg(Rd) + sign_extend_4(imm1));
-      if (condition_passed(cond, condition_flags((int64_t)get_reg(Rd) - sign_extend_6(imm2)))) {
+      if (condition_passed(cond, condition_flags((int64_t)get_reg(Rd) - imm2))) {
           set_reg(pc, get_reg(pc) + 2 * sign_extend_8(offset));
       }
   - name: b<cond> 2*offset + pc
@@ -904,25 +915,31 @@ instructions:
     pattern: 1100 1010 000 Rd:5 Ra:5 cond:4 1 imm:6
     code: |
       if (condition_passed(cond, get_reg(sr))) {
-        error("TBD");
+          float shift = pow(2, sign_extend_6(imm));
+          set_reg(Rd, (int32_t)(int_to_float(get_reg(Ra)) * shift));
       }
   - name: floor<cond> Rd, Ra, lsl imm
     pattern: 1100 1010 001 Rd:5 Ra:5 cond:4 1 imm:6
     code: |
       if (condition_passed(cond, get_reg(sr))) {
-        error("TBD");
+          float shift = pow(2, sign_extend_6(imm));
+          set_reg(Rd, (int32_t)floor(int_to_float(get_reg(Ra)) * shift));
       }
   - name: flts<cond> Rd, Ra, lsr imm
     pattern: 1100 1010 010 Rd:5 Ra:5 cond:4 1 imm:6
     code: |
       if (condition_passed(cond, get_reg(sr))) {
-        error("TBD");
+        float shift = pow(2, sign_extend_6(imm));
+        float result = (int32_t)get_reg(Ra);
+        set_reg(Rd, float_to_int(result / shift));
       }
   - name: fltu<cond> Rd, Ra, lsr imm
     pattern: 1100 1010 011 Rd:5 Ra:5 cond:4 1 imm:6
     code: |
       if (condition_passed(cond, get_reg(sr))) {
-        error("TBD");
+        float shift = pow(2, sign_extend_6(imm));
+        float result = (uint32_t)get_reg(Ra);
+        set_reg(Rd, float_to_int(result / shift));
       }
 
   # 48-bit scalar instructions
