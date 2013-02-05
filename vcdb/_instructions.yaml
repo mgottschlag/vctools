@@ -613,9 +613,6 @@ instructions:
           count = count + 1;
       }
       next_sp = get_reg(sp) + (count + with_pc) * 4;
-      if (with_pc) {
-          set_reg(pc, pop());
-      }
       // TODO: push/pop order?
       for (i = count - 1; i >= 0; i--) {
           int reg_index = (first_register[first] + i) & 31;
@@ -651,7 +648,7 @@ instructions:
   - name: lea Rd, 4*imm(sp)
     pattern: 0001 0 imm:6 Rd:5
     code: |
-      set_reg(get_reg(Rd), get_reg(sp) + 4 * sign_extend(imm, 6));
+      set_reg(Rd, get_reg(sp) + 4 * sign_extend(imm, 6));
   - name: b<cond> offset
     pattern: 0001 1 cond:4 offset:7
     code: |
