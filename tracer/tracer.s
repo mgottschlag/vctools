@@ -8,7 +8,8 @@ memory accesses and interrupts via the uart.
 
 	.include "vcregs.inc"
 
-	.equ BACKUP_SIZE, 8
+	.equ DIRECT_EXEC_START, 0xcf000200
+	.equ DIRECT_EXEC_END, 0x0f01bf92
 
 	.text
 	.global _start
@@ -39,6 +40,39 @@ fill_ivt_loop:
 	lea r0, tracer_end
 	mov r1, 0x7e002030
 	st r0, (r1)
+	lea r0, tracer_end
+	lea r1, ivt_entry_0x00
+	st r1, (r0)++
+	lea r1, ivt_entry_0x01
+	st r1, (r0)++
+	lea r1, ivt_entry_0x02
+	st r1, (r0)++
+	lea r1, ivt_entry_0x03
+	st r1, (r0)++
+	lea r1, ivt_entry_0x04
+	st r1, (r0)++
+	lea r1, ivt_entry_0x05
+	st r1, (r0)++
+	lea r1, ivt_entry_0x06
+	st r1, (r0)++
+	lea r1, ivt_entry_0x07
+	st r1, (r0)++
+	lea r1, ivt_entry_0x08
+	st r1, (r0)++
+	lea r1, ivt_entry_0x09
+	st r1, (r0)++
+	lea r1, ivt_entry_0x0a
+	st r1, (r0)++
+	lea r1, ivt_entry_0x03
+	st r1, (r0)++
+	lea r1, ivt_entry_0x04
+	st r1, (r0)++
+	lea r1, ivt_entry_0x05
+	st r1, (r0)++
+	lea r1, ivt_entry_0x06
+	st r1, (r0)++
+	lea r1, ivt_entry_0x07
+	st r1, (r0)++
 
 	/* start executing the code */
 	lea r0, starting_label
@@ -82,6 +116,13 @@ debug_output:
 	mov r0, r14
 	bl uart_send_int_newline
 no_debug_output:*/
+
+	/*cmp r15, DIRECT_EXEC_START
+	beq direct_execution*/
+	cmp r15, DIRECT_EXEC_END
+	bne 1f
+	bl dump_registers
+1:
 
 	/* decode the size of the instruction */
 	btst r14, 15
@@ -229,7 +270,9 @@ load_store:
 	push r6-r8, lr
 	/* early dram initialization and reclocking registers are emulated */
 emulate_load_store_branch:
-	b emulate_load_store
+	ld r4, register_emulation_enabled
+	cmp r4, 1
+	beq emulate_load_store
 load_store_no_emulation:
 	mov r7, r2
 	mov r8, r0
@@ -470,16 +513,39 @@ panic:
 	b 1b
 
 interrupt_handler:
-	mov r6, r6, lr
+	push r0-r8
 	lea r0, interrupt_label
 	bl uart_send_str
-	mov r7, r0, r25
-	ld r0, (r7)
+	mov r0, 0x7e002000
+	ld r0, (r0)
 	bl uart_send_int_newline
-	add r7, 4
-	ld r0, (r7)
+	/* TODO */
+	bl panic
+
+
+exception_handler_common:
+	push r0
+	lea r0, exception_label
+	bl uart_send_str
+	pop r0
 	bl uart_send_int_newline
+	mov r6, 30
+1:
+	sub r6, 1
 	mov r0, r6
+	bl uart_send_int
+	lea r0, space
+	bl uart_send_str
+	pop r0
+	bl uart_send_int_newline
+	bne r6, 0, 1b
+	lea r0, label_sr
+	bl uart_send_str
+	pop r0
+	bl uart_send_int_newline
+	lea r0, label_pc
+	bl uart_send_str
+	pop r0
 	bl uart_send_int_newline
 	bl panic
 
@@ -501,6 +567,120 @@ dump_registers:
 	pop r6, pc
 
 	.include "util.inc"
+
+	.align 1
+.macro ivt_exception_entry val
+ivt_entry_\val:
+	push r0-r29
+	mov r0, \val
+	b exception_handler_common
+.endm
+
+ivt_exception_entry 0x00
+ivt_exception_entry 0x01
+ivt_exception_entry 0x02
+ivt_exception_entry 0x03
+ivt_exception_entry 0x04
+ivt_exception_entry 0x05
+ivt_exception_entry 0x06
+ivt_exception_entry 0x07
+ivt_exception_entry 0x08
+ivt_exception_entry 0x09
+ivt_exception_entry 0x0a
+ivt_exception_entry 0x0b
+ivt_exception_entry 0x0c
+ivt_exception_entry 0x0d
+ivt_exception_entry 0x0e
+ivt_exception_entry 0x0f
+ivt_exception_entry 0x10
+ivt_exception_entry 0x11
+ivt_exception_entry 0x12
+ivt_exception_entry 0x13
+ivt_exception_entry 0x14
+ivt_exception_entry 0x15
+ivt_exception_entry 0x16
+ivt_exception_entry 0x17
+ivt_exception_entry 0x18
+ivt_exception_entry 0x19
+ivt_exception_entry 0x1a
+ivt_exception_entry 0x1b
+ivt_exception_entry 0x1c
+ivt_exception_entry 0x1d
+ivt_exception_entry 0x1e
+ivt_exception_entry 0x1f
+
+direct_execution:
+	lea r0, reenter_tracer_code
+	st r0, reenter_address
+	lea r0, reenter_tracer
+	mov r1, DIRECT_EXEC_END
+	mov r2, 10
+	bl memcpy
+
+	mov r0, 0x83000000
+	ld r1, register_pc
+	st r1, --(r0)
+	ld r1, register_sr
+	st r1, --(r0)
+
+	lea sp, registers
+	ld r0, (sp)++
+	ld r1, (sp)++
+	ld r2, (sp)++
+	ld r3, (sp)++
+	ld r4, (sp)++
+	ld r5, (sp)++
+	ld r6, (sp)++
+	ld r7, (sp)++
+	ld r8, (sp)++
+	ld r9, (sp)++
+	ld r10, (sp)++
+	ld r11, (sp)++
+	ld r12, (sp)++
+	ld r13, (sp)++
+	ld r14, (sp)++
+	ld r15, (sp)++
+	ld r16, (sp)++
+	ld r17, (sp)++
+	ld r18, (sp)++
+	ld r19, (sp)++
+	ld r20, (sp)++
+	ld r21, (sp)++
+	ld r22, (sp)++
+	ld r23, (sp)++
+	ld r24, (sp)++
+	add sp, 4
+	ld r26, (sp)++
+	ld r27, (sp)++
+	add sp, 4
+	ld r29, (sp)++
+	sub sp, 20
+	mov sp, 0x82fffff8
+	rti
+
+reenter_tracer_code:
+	mov r1, r0, sp
+	mov sp, 0x84000000
+	lea r0, registers
+	mov r2, 0
+	mov r3, 31
+1:
+	ld r4, (r1, r2)
+	st r4, (r0, r3)
+	add r2, 1
+	sub r3, 1
+	bne r2, 32, 1b
+	bl dump_registers
+1:
+	b 1b
+
+	.align 2
+reenter_tracer:
+	push r0-r31
+	.short 0xe800 /* mov r0, address */
+reenter_address:
+	.int 0
+	bl r0
 
 	.align 2
 registers:
@@ -541,9 +721,13 @@ register_sr:
 	.int 0x2000000a /* sr - status register */
 register_pc:
 	.int 0x80000200
+registers_end:
 
 interrupt_vector_address:
 	.int 0x0
+
+register_emulation_enabled:
+	.int 1
 
 /**
  * Various strings
@@ -551,12 +735,16 @@ interrupt_vector_address:
 starting_label:
 	.ascii "starting...\n\0"
 execute_label:
-	/*.ascii "executing: \0"*/
+label_pc:
 	.ascii "pc: \0"
+label_sr:
+	.ascii "sr: \0"
 panic_label:
 	.ascii "panic!\n\0"
 interrupt_label:
-	.ascii "interrupt!\n\0"
+	.ascii "interrupt: \0"
+exception_label:
+	.ascii "exception: \0"
 load_label:
 	.ascii "r\0"
 store_label:
