@@ -3,4 +3,63 @@ name: PM
 brief: Power Management
 size: 0x1000
 desc: >
-  Reset Controller and Watchdog registers.
+  Power Management, Reset Controller and Watchdog registers.
+registers:
+  0x1c:
+    name: RSTC
+    brief: Reset control?
+    bits:
+      1:
+        name: RESET1
+      5-4:
+        name: WRCFG
+        values:
+          0x0:
+            name: CLR
+          0x1:
+            name: SET
+          0x2:
+            name: FULL_RESET
+      8:
+        name: RESET2
+      31-24:
+        values:
+          0x5a:
+            name: PASSWORD
+  0x20:
+    name: RSTS
+    brief: Reset status?
+    bits:
+      0:
+        name: HADDRQ
+      1:
+        name: HADDRF
+      2:
+        name: HADDRH
+      4:
+        name: HADWRQ
+      5:
+        name: HADWRF
+      6:
+        name: HADWRH
+      8:
+        name: HADSRQ
+      9:
+        name: HADSRF
+      10:
+        name: HADSRH
+      12:
+        name: HADPOR
+        brief: Power-on reset?
+  0x24:
+    name: WDOG
+    brief: Watchdog timer counter
+    bits:
+      19-0:
+        name: TIME_SET
+        desc: |
+          Number of ticks after which the watchdog timer expires.
+      31-24:
+        values:
+          0x5a:
+            name: PASSWORD
