@@ -4,3 +4,39 @@ brief: System Timers
 size: 0x1000
 desc: >
   TBD
+registers:
+  0x0:
+    name: CS
+    brief: Control/Status
+    bits:
+      0:
+        name: M0
+        brief: Match 0
+      1:
+        name: M1
+        brief: Match 1
+      2:
+        name: M2
+        brief: Match 2
+      3:
+        name: M3
+        brief: Match 3
+  0x4:
+    name: CLO
+    brief: Free Running Counter (Lower 32 Bits)
+  0x8:
+    name: CHI
+    brief: Free Running Counter (Higher 32 Bits)
+  0xc:
+    name: C0
+    brief: Compare 0
+  0x10:
+    name: C1
+    brief: Compare 1
+  0x14:
+    name: C2
+    brief: Compare 2
+  0x18:
+    name: C3
+    brief: Compare 3
+
