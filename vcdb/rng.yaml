@@ -2,5 +2,42 @@
 name: RNG
 brief: Random Number Generator
 size: 0x1000
-desc: >
-  TBD
+desc: |
+  A hardware random number generator which measures thermal noise to produce
+  random numbers. A driver for this exists in the linux tree, although no other
+  documentation has been released.
+registers:
+  0x0:
+    name: CTRL
+    brief: RNG control register
+    bits:
+      0:
+        name: RBGEN
+        desc: |
+          Writing a 1 enables the RNG, writing a 0 disables it.
+      1:
+        name: RBG2X
+        desc: |
+          Writing a 1 here doubles the rate of random numbers, but decreases
+          the "randomness".
+  0x4:
+    name: STATUS
+    brief: RNG status (available word count)
+    bits:
+      24-31:
+        name: AVAIL_COUNT
+        desc: Number of bytes available through the DATA register.
+      0-23:
+        name: SKIP
+        desc: |
+          Writing a number here makes the RNG skip the number of words. Linux
+          writes 0x40000 here at initialization to skip some words until
+          "randomness" is high enough.
+  0x8:
+    name: DATA
+    brief: Random number output
+    desc: |
+      If STATUS.AVAIL_COUNT is greater than 0, a 32-bit random word can be read
+      from this register.
+  0xc:
+    name: FF_THRESHOLD
