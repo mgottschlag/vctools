@@ -119,8 +119,17 @@ execute_tbb:
 	bl execute_instruction
 
 execute_tbh:
-	/* TODO */
-	bl panic
+	/* table index */
+	and r0, r14, 0x1f
+	bl load_register
+	/* offset */
+	ld r1, register_pc
+	add r1, 2
+	ldh r0, (r1, r0)
+	lsl r0, 1
+	add r0, r1
+	st r0, register_pc
+	bl execute_instruction
 
 execute_cpuid:
 	mov r1, cpuid
