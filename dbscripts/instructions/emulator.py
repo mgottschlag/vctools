@@ -214,6 +214,7 @@ static void set_reg(struct vc4_emul *emul, int reg, uint32_t value) {
 #define set_reg(reg, value) set_reg(emul, reg, value)
 /* sign extension */
 static inline uint32_t sign_extend(uint32_t value, int bits) {
+    value &= (1 << bits) - 1;
     if (value & (1 << (bits - 1))) {
         return value | ~((1 << bits) - 1);
     } else {
