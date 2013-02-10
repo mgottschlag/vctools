@@ -295,9 +295,6 @@ execute_ld_st_4:
 	/* address */
 	lsr r0, r6, 11
 	and r0, 0x1f
-	mov r7, r0
-	bl uart_send_int_newline
-	mov r0, r7
 	bl load_register
 	extu r2, r6, 11
 	lsr r3, r14, 8
@@ -385,13 +382,6 @@ div_instructions:
 	b div_executed
 	divu r1, r7, r0
 div_executed:
-	mov r8, r1
-	bl uart_send_int
-	mov r0, r7
-	bl uart_send_int
-	mov r0, r8
-	bl uart_send_int_newline
-	mov r1, r8
 	/* d */
 	and r0, r14, 0x1f
 	bl store_register
@@ -545,8 +535,6 @@ float_operation_instructions:
 float_store_result:
 	mov r0, r8
 	bl store_register
-	mov r0, r8
-	bl uart_send_int_newline
 	b next_instruction
 float_store_flags:
 	ld r0, register_sr

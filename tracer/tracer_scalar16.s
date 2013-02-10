@@ -59,7 +59,6 @@ execute_scalar16:
 	bl panic
 
 enable_interrupts:
-	bl panic
 	ld r0, register_sr
 	bset r0, 30
 	st r0, register_sr
