@@ -510,18 +510,33 @@ condition_failed:
 load_register:
 	push r6, lr
 	beq r0, 25, load_sp
+	beq r0, 28, load_r28
 	lea r6, registers
 	ld r0, (r6, r0)
 	pop r6, pc
+
+	/* sp is r28 in exception mode */
 load_sp:
-	/* r25/r28, depending on the mode */
 	ld r6, register_sr
-	btst r6, 30
-	bne load_r28
+	btst r6, 29
+	beq load_sp_exception_mode
 	ld r0, register_sp
 	pop r6, pc
-load_r28:
+load_sp_exception_mode:
 	ld r0, register_r28
+	pop r6, pc
+
+	/* r28 is r27 in user mode */
+load_r28:
+	ld r6, register_sr
+	/* TODO: do both bits need to be set? */
+	btst r6, 31
+	btstne r6, r6, 29
+	bne load_r28_user_mode
+	ld r0, register_r28
+	pop r6, pc
+load_r28_user_mode:
+	ld r0, register_r27
 	pop r6, pc
 
 /**
@@ -530,19 +545,35 @@ load_r28:
 store_register:
 	push r6, lr
 	beq r0, 25, store_sp
+	beq r0, 25, store_r28
 	lea r6, registers
 	st r1, (r6, r0)
 	pop r6, pc
+
+	/* sp is r28 in exception mode */
 store_sp:
-	/* r25/r28, depending on the mode */
 	ld r6, register_sr
-	btst r6, 30
-	bne store_r28
+	btst r6, 29
+	beq store_sp_exception_mode
 	st r1, register_sp
 	pop r6, pc
-store_r28:
+store_sp_exception_mode:
 	st r1, register_r28
 	pop r6, pc
+
+	/* r28 is r27 in user mode */
+store_r28:
+	ld r6, register_sr
+	/* TODO: do both bits need to be set? */
+	btst r6, 31
+	btstne r6, r6, 29
+	bne store_r28_user_mode
+	st r1, register_r28
+	pop r6, pc
+store_r28_user_mode:
+	st r1, register_r27
+	pop r6, pc
+
 
 	.include "tracer_load_store_emul.s"
 
@@ -876,6 +907,7 @@ register_sp:
 	.int 0x6000865c /* sp - stack pointer */
 register_lr:
 	.int 0x60003602 /* lr - link register */
+register_r27:
 	.int 0x00000000
 register_r28:
 	.int 0x00000000 /* ssp */
