@@ -281,7 +281,7 @@ execute_ld_st_1:
 	mov r0, 25
 	bl load_register
 	lsr r1, r14, 4
-	exts r1, 4
+	extu r1, 5
 	lsl r1, 2
 	add r2, r1, r0
 	/* rd */
