@@ -25,55 +25,126 @@ _start:
 	mov r1, 0x80000000
 	bl memcpy
 
-	/* install interrupt handlers */
+	/* the interrupt stack is placed after the ivt */
 	lea r0, tracer_end
 	add r0, 0x1000
 	mov r28, r0, r0
+
+	/* fill the interrupt handler table */
 	lea r0, tracer_end
-	add r1, r0, 512
-	lea r2, interrupt_handler
-fill_ivt_loop:
-	st r2, (r0)
-	add r0, 4
-	bne r0, r1, fill_ivt_loop
-	/*.short 0x0005*/ /* disable interrupts */
+	mov r1, 0x00
+	mov r2, 0x200
+	bl memset
+
+.macro install_ivt_entry val
+	mov r2, \val*4
+	add r2, r0
+	lea r1, ivt_entry_\val
+	st r1, (r2)
+.endm
+
+	lea r0, tracer_end
+	install_ivt_entry 0x00
+	install_ivt_entry 0x01
+	install_ivt_entry 0x02
+	install_ivt_entry 0x03
+	install_ivt_entry 0x04
+	install_ivt_entry 0x05
+	install_ivt_entry 0x06
+	install_ivt_entry 0x07
+	install_ivt_entry 0x08
+	install_ivt_entry 0x09
+	install_ivt_entry 0x0a
+	install_ivt_entry 0x0b
+	install_ivt_entry 0x0c
+	install_ivt_entry 0x0d
+	install_ivt_entry 0x0e
+	install_ivt_entry 0x0f
+	install_ivt_entry 0x10
+	install_ivt_entry 0x11
+	install_ivt_entry 0x12
+	install_ivt_entry 0x13
+	install_ivt_entry 0x14
+	install_ivt_entry 0x15
+	install_ivt_entry 0x16
+	install_ivt_entry 0x17
+	install_ivt_entry 0x18
+	install_ivt_entry 0x19
+	install_ivt_entry 0x1a
+	install_ivt_entry 0x1b
+	install_ivt_entry 0x1c
+	install_ivt_entry 0x1d
+	install_ivt_entry 0x1e
+	install_ivt_entry 0x1f
+	install_ivt_entry 0x40
+	install_ivt_entry 0x41
+	install_ivt_entry 0x42
+	install_ivt_entry 0x43
+	install_ivt_entry 0x44
+	install_ivt_entry 0x45
+	install_ivt_entry 0x46
+	install_ivt_entry 0x47
+	install_ivt_entry 0x48
+	install_ivt_entry 0x49
+	install_ivt_entry 0x4a
+	install_ivt_entry 0x4b
+	install_ivt_entry 0x4c
+	install_ivt_entry 0x4d
+	install_ivt_entry 0x4e
+	install_ivt_entry 0x4f
+	install_ivt_entry 0x50
+	install_ivt_entry 0x51
+	install_ivt_entry 0x52
+	install_ivt_entry 0x53
+	install_ivt_entry 0x54
+	install_ivt_entry 0x55
+	install_ivt_entry 0x56
+	install_ivt_entry 0x57
+	install_ivt_entry 0x58
+	install_ivt_entry 0x59
+	install_ivt_entry 0x5a
+	install_ivt_entry 0x5b
+	install_ivt_entry 0x5c
+	install_ivt_entry 0x5d
+	install_ivt_entry 0x5e
+	install_ivt_entry 0x5f
+	install_ivt_entry 0x60
+	install_ivt_entry 0x61
+	install_ivt_entry 0x62
+	install_ivt_entry 0x63
+	install_ivt_entry 0x64
+	install_ivt_entry 0x65
+	install_ivt_entry 0x66
+	install_ivt_entry 0x67
+	install_ivt_entry 0x68
+	install_ivt_entry 0x69
+	install_ivt_entry 0x6a
+	install_ivt_entry 0x6b
+	install_ivt_entry 0x6c
+	install_ivt_entry 0x6d
+	install_ivt_entry 0x6e
+	install_ivt_entry 0x6f
+	install_ivt_entry 0x70
+	install_ivt_entry 0x71
+	install_ivt_entry 0x72
+	install_ivt_entry 0x73
+	install_ivt_entry 0x74
+	install_ivt_entry 0x75
+	install_ivt_entry 0x76
+	install_ivt_entry 0x77
+	install_ivt_entry 0x78
+	install_ivt_entry 0x79
+	install_ivt_entry 0x7a
+	install_ivt_entry 0x7b
+	install_ivt_entry 0x7c
+	install_ivt_entry 0x7d
+	install_ivt_entry 0x7e
+	install_ivt_entry 0x7f
+
+	/* install the interrupt handlers */
 	lea r0, tracer_end
 	mov r1, 0x7e002030
 	st r0, (r1)
-	lea r0, tracer_end
-	lea r1, ivt_entry_0x00
-	st r1, (r0)++
-	lea r1, ivt_entry_0x01
-	st r1, (r0)++
-	lea r1, ivt_entry_0x02
-	st r1, (r0)++
-	lea r1, ivt_entry_0x03
-	st r1, (r0)++
-	lea r1, ivt_entry_0x04
-	st r1, (r0)++
-	lea r1, ivt_entry_0x05
-	st r1, (r0)++
-	lea r1, ivt_entry_0x06
-	st r1, (r0)++
-	lea r1, ivt_entry_0x07
-	st r1, (r0)++
-	lea r1, ivt_entry_0x08
-	st r1, (r0)++
-	lea r1, ivt_entry_0x09
-	st r1, (r0)++
-	lea r1, ivt_entry_0x0a
-	st r1, (r0)++
-	lea r1, ivt_entry_0x03
-	st r1, (r0)++
-	lea r1, ivt_entry_0x04
-	st r1, (r0)++
-	lea r1, ivt_entry_0x05
-	st r1, (r0)++
-	lea r1, ivt_entry_0x06
-	st r1, (r0)++
-	lea r1, ivt_entry_0x07
-	st r1, (r0)++
-
 	/* start executing the code */
 	lea r0, starting_label
 	bl uart_send_str
@@ -512,16 +583,37 @@ panic:
 1:
 	b 1b
 
-interrupt_handler:
-	push r0-r8
+interrupt_handler_common:
 	lea r0, interrupt_label
 	bl uart_send_str
-	mov r0, 0x7e002000
-	ld r0, (r0)
+	mov r0, r6
 	bl uart_send_int_newline
-	/* TODO */
-	bl panic
-
+	/* save the old values of pc and sr */
+	ld r7, register_pc
+	ld r8, register_sr
+	/* update pc and sr to enter the interrupt handler */
+	ld r0, interrupt_vector_address
+	ld r0, (r0, r6)
+	bl uart_send_int_newline
+	ld r0, interrupt_vector_address
+	ld r0, (r0, r6)
+	st r0, register_pc
+	ld r0, register_sr
+	extu r0, 29
+	st r0, register_sr
+	/* push pc and sr onto the emulated stack */
+	mov r0, 25
+	bl load_register
+	st r7, --(r0)
+	st r8, --(r0)
+	mov r1, r0
+	mov r0, 25
+	bl store_register
+	/* continue emulation */
+	pop r0
+	bclr r0, 30
+	push r0
+	rti
 
 exception_handler_common:
 	push r0
@@ -608,6 +700,77 @@ ivt_exception_entry 0x1c
 ivt_exception_entry 0x1d
 ivt_exception_entry 0x1e
 ivt_exception_entry 0x1f
+
+.macro ivt_interrupt_entry val
+ivt_entry_\val:
+	mov r6, \val
+	b interrupt_handler_common
+.endm
+
+ivt_interrupt_entry 0x40
+ivt_interrupt_entry 0x41
+ivt_interrupt_entry 0x42
+ivt_interrupt_entry 0x43
+ivt_interrupt_entry 0x44
+ivt_interrupt_entry 0x45
+ivt_interrupt_entry 0x46
+ivt_interrupt_entry 0x47
+ivt_interrupt_entry 0x48
+ivt_interrupt_entry 0x49
+ivt_interrupt_entry 0x4a
+ivt_interrupt_entry 0x4b
+ivt_interrupt_entry 0x4c
+ivt_interrupt_entry 0x4d
+ivt_interrupt_entry 0x4e
+ivt_interrupt_entry 0x4f
+ivt_interrupt_entry 0x50
+ivt_interrupt_entry 0x51
+ivt_interrupt_entry 0x52
+ivt_interrupt_entry 0x53
+ivt_interrupt_entry 0x54
+ivt_interrupt_entry 0x55
+ivt_interrupt_entry 0x56
+ivt_interrupt_entry 0x57
+ivt_interrupt_entry 0x58
+ivt_interrupt_entry 0x59
+ivt_interrupt_entry 0x5a
+ivt_interrupt_entry 0x5b
+ivt_interrupt_entry 0x5c
+ivt_interrupt_entry 0x5d
+ivt_interrupt_entry 0x5e
+ivt_interrupt_entry 0x5f
+ivt_interrupt_entry 0x60
+ivt_interrupt_entry 0x61
+ivt_interrupt_entry 0x62
+ivt_interrupt_entry 0x63
+ivt_interrupt_entry 0x64
+ivt_interrupt_entry 0x65
+ivt_interrupt_entry 0x66
+ivt_interrupt_entry 0x67
+ivt_interrupt_entry 0x68
+ivt_interrupt_entry 0x69
+ivt_interrupt_entry 0x6a
+ivt_interrupt_entry 0x6b
+ivt_interrupt_entry 0x6c
+ivt_interrupt_entry 0x6d
+ivt_interrupt_entry 0x6e
+ivt_interrupt_entry 0x6f
+ivt_interrupt_entry 0x70
+ivt_interrupt_entry 0x71
+ivt_interrupt_entry 0x72
+ivt_interrupt_entry 0x73
+ivt_interrupt_entry 0x74
+ivt_interrupt_entry 0x75
+ivt_interrupt_entry 0x76
+ivt_interrupt_entry 0x77
+ivt_interrupt_entry 0x78
+ivt_interrupt_entry 0x79
+ivt_interrupt_entry 0x7a
+ivt_interrupt_entry 0x7b
+ivt_interrupt_entry 0x7c
+ivt_interrupt_entry 0x7d
+ivt_interrupt_entry 0x7e
+ivt_interrupt_entry 0x7f
 
 direct_execution:
 	lea r0, reenter_tracer_code
