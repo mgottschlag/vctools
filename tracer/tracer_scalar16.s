@@ -70,19 +70,19 @@ disable_interrupts:
 	bl next_instruction
 
 execute_rti:
-	/* load the old stack pointer */
+	/* pop sr and pc off the stack */
 	mov r0, 25
 	bl load_register
-	mov r6, r0
-	/* load pc and sr */
-	ld r0, (r6)++
-	st r0, register_sr
-	ld r0, (r6)++
-	st r0, register_pc
+	ld r7, (r0)++
+	ld r8, (r0)++
 	/* write the updated stack pointer */
-	mov r1, r6
+	mov r1, r0
 	mov r0, 25
 	bl store_register
+	/* store the value of pc and sr
+	 * (this has to be done after the store_register above) */
+	st r7, register_sr
+	st r8, register_pc
 	bl execute_instruction
 
 execute_swi_reg:
