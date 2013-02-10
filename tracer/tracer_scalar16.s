@@ -203,7 +203,11 @@ push_not_r24:
 	beq execute_pop
 
 execute_push:
+	/* if sp is pushed, then the value *after* the push is pushed */
 	mov r11, r10
+	add r0, r6, r8
+	lsl r0, r0, 2
+	sub r11, r0
 	/* push lr if necessary */
 	bne r8, 1, no_lr_pushed
 push_lr:
@@ -236,9 +240,8 @@ normal_registers_pushed:
 execute_pop:
 	/* store the value of sp after the pop */
 	mov r11, r10
-	lsl r0, r6, 2
-	add r11, r0
-	lsl r0, r8, 2
+	add r0, r6, r8
+	lsl r0, r0, 2
 	add r11, r0
 	/* pop other registers */
 	sub r9, r6, 1
