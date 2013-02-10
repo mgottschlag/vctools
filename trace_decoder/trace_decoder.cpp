@@ -65,6 +65,8 @@ int main() {
             decode(line, false);
         } else if (line.substr(0, 1) == "w") {
             decode(line, true);
+        } else if (line.find("interrupt") != std::string::npos) {
+            std::cout << line << std::endl;
         }
     }
     return 0;
