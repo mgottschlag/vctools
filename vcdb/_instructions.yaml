@@ -218,9 +218,10 @@ function_lists:
         code: |
           void btst(int d, int32_t a, int32_t b) {
               int32_t tmp_sr = get_reg(sr);
-              tmp_sr |= 0x8;
+              tmp_sr &= ~0xf
+              tmp_sr |= 0xa;
               if (a & (1 << b)) {
-                  tmp_sr &= ~0x8;
+                  tmp_sr &= ~0xa;
               }
               set_reg(sr, tmp_sr);
           }
@@ -584,19 +585,20 @@ instructions:
     code: |
       int first_register[] = {0, 6, 16, 24};
       int i;
-      uint32_t old_sp = get_reg(sp);
+      uint32_t new_sp = get_reg(sp);
       if (with_lr) {
           count = (count + 1) & 31;
       } else {
           count = count + 1;
       }
+      new_sp = new_sp - (count + with_lr) * 4;
       if (with_lr) {
           push(get_reg(lr));
       }
       for (i = 0; i < count; i++) {
           int reg_index = (first_register[first] + i) & 31;
           if (reg_index == 25) {
-              push(old_sp);
+              push(new_sp);
           } else {
               push(get_reg(reg_index));
           }
@@ -612,7 +614,7 @@ instructions:
       } else {
           count = count + 1;
       }
-      next_sp = get_reg(sp) + (count + with_pc) * 4;
+      next_sp = get_reg(sp);
       // TODO: push/pop order?
       for (i = count - 1; i >= 0; i--) {
           int reg_index = (first_register[first] + i) & 31;
@@ -628,15 +630,15 @@ instructions:
       if (with_pc) {
           set_reg(pc, pop());
       }
-      set_reg(sp, next_sp);
+      set_reg(sp, next_sp + (count + with_pc) * 4);
   - name: ld Rd, offset(sp)
     pattern: 0000 010 offset:5 Rd:4
     code: |
-      set_reg(Rd, load(get_reg(sp) + sign_extend_5(offset) * 4, WORD));
+      set_reg(Rd, load(get_reg(sp) + offset * 4, WORD));
   - name: st Rd, offset(sp)
     pattern: 0000 011 offset:5 Rd:4
     code: |
-      store(get_reg(sp) + sign_extend_5(offset) * 4, WORD, get_reg(Rd));
+      store(get_reg(sp) + offset * 4, WORD, get_reg(Rd));
   - name: ld<size> Rd, (Rs)
     pattern: 0000 1 format:2 0 Rs:4 Rd:4
     code: |
