@@ -138,10 +138,29 @@ execute_cpuid:
 
 execute_swi_imm:
 	/* switch into interrupt mode */
-	/* TODO: is this correct? */
 	ld r6, register_sr
-	bclr r0, r6, 30
+	bclr r0, r6, 29
 	st r0, register_sr
+	/* fetch the entry from the ivt */
+	and r0, r14, 0x1f
+	ld r1, interrupt_vector_address
+	add r1, 0x80
+	lsl r0, 4
+	add r0, r1
+	ld r7, (r0)
+	/* set the supervisor bit if necessary */
+	/* TODO: this is totally wrong? */
+	btst r7, 0
+	beq swi_no_supervisor_bit
+	ld r1, register_sr
+	bset r1, 29
+	st r1, register_sr
+swi_no_supervisor_bit:
+	/* check that user code cannot call privileged system calls */
+	btst r7, 0
+	bne swi_unprivileged_interrupt
+	/* TODO */
+swi_unprivileged_interrupt:
 	/* push sr and pc */
 	mov r0, 25
 	bl load_register
@@ -151,28 +170,9 @@ execute_swi_imm:
 	mov r1, r0
 	mov r0, 25
 	bl store_register
-	/* fetch the entry from the ivt */
-	and r0, r14, 0x1f
-	ld r1, interrupt_vector_address
-	add r1, 0x80
-	lsl r0, 4
-	add r0, r1
-	ld r0, (r0)
-	/* set the supervisor bit if necessary */
-	btst r0, 0
-	beq swi_no_supervisor_bit
-	ld r1, register_sr
-	bset r1, 29
-	st r1, register_sr
-swi_no_supervisor_bit:
-	/* check that user code cannot call privileged system calls */
-	btst r0, 0
-	bne swi_unprivileged_interrupt
-	/* TODO */
-swi_unprivileged_interrupt:
 	/* execute the interrupt handler */
-	bclr r0, 0
-	st r0, register_pc
+	bclr r7, 0
+	st r7, register_pc
 	bl execute_instruction
 
 execute_push_pop:
