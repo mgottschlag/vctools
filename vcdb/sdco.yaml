@@ -4,3 +4,17 @@ brief: SDRAM Controller
 size: 0x1000
 desc: >
   TBD
+registers:
+  0x3c:
+    name: LOCK_LOW
+    brief: Lowest address of locked memory region. (?)
+    bits:
+      0:
+        name: ENABLE
+        desc: |
+          Enables the memory lock, write a 1 here after both low and high
+          address have been set to enable the lock. Afterwards, ld/st
+          instructions to the memory region will fail.
+  0x40:
+    name: LOCK_HIGH
+    brief: Highest address of locked memory region. (?)
