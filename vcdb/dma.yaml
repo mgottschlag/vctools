@@ -14,7 +14,7 @@ arrays:
     block:
       brief: DMA channel register set
       size: 0x100
-      desc: >
+      desc: |
         Registers to control operation of one single DMA channel.
       registers:
         0x0:
@@ -43,15 +43,8 @@ arrays:
             8:
               name: ERROR
               access: r
-              desc: >
+              desc: |
                 Indicates whether the DMA channel has detected an error.
-              values:
-                1:
-                  name: ERROR
-                  desc: An error flag is set.
-                0:
-                  name: OK
-                  desc: The channel is ok.
             6:
               name: WAIT_STATUS
               access: r
@@ -73,3 +66,92 @@ arrays:
             0:
               name: ACTIVE
               access: rw
+        0x4:
+          name: CONBLK_AD
+          brief: Active control block address
+          access: rw
+        0x8:
+          name: TI
+          brief: Transfer information
+          bits:
+            0:
+              name: INTEN
+            1:
+              name: TDMODE
+              brief: 2D mode
+            3:
+              name: WAIT_RESP
+            4:
+              name: DEST_INC
+            5:
+              name: DEST_WIDTH
+            6:
+              name: DEST_DREQ
+            7:
+              name: DEST_IGNORE
+            8:
+              name: SRC_INC
+            9:
+              name: SRC_WIDTH
+            10:
+              name: SRC_DREQ
+            11:
+              name: SRC_IGNORE
+            15-12:
+              name: BURST_LENGTH
+            20-16:
+              name: PERMAP
+            25-21:
+              name: WAITS
+            26:
+              name: NO_WIDE_BURSTS
+        0xc:
+          name: SOURCE_AD
+          brief: Source address
+        0x10:
+          name: DEST_AD
+          brief: Destination address
+        0x14:
+          name: TXFR_LEN
+          brief: Transfer length
+          bits:
+            15-0:
+              name: XLENGTH
+              brief: Transfer length in bytes
+            31-16:
+              name: YLENGTH
+              brief: Number of transfers (2D mode) or high transfer length bits
+        0x18:
+          name: STRIDE
+          brief: 2D stride (only channel 0-6)
+          bits:
+            15-0:
+              name: S_STRIDE
+              brief: Source stride
+            31-16:
+              name: D_STRIDE
+              brief: Destination stride
+        0x1c:
+          name: NEXTCONBK
+          brief: Next control block address
+        0x20:
+          name: DEBUG
+          brief: Debug information
+          access: rw
+          bits:
+            0:
+              name: READ_LAST_NOT_SET_ERROR
+            1:
+              name: FIFO_ERROR
+            2:
+              name: READ_ERROR
+            7-4:
+              name: OUTSTANDING_WRITES
+            15-8:
+              name: DMA_ID
+            24-16:
+              name: DMA_STATE
+            27-25:
+              name: VERSION
+            28:
+              name: LITE
