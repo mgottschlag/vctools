@@ -44,6 +44,13 @@ void decode(const std::string &line, bool store) {
         std::cout << "R";
     }
     std::cout << ", 4, 0x" << pc << "): ";
+    std::cout << line.substr(11, 8);
+    if (store) {
+        std::cout << " <= ";
+    } else {
+        std::cout << " => ";
+    }
+    std::cout << line.substr(19, 8) << " - ";
     vc_decode_register(address, buffer, sizeof(buffer));
     std::cout << buffer;
     if (store) {
