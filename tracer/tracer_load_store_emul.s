@@ -30,16 +30,12 @@ emulate_load:
 	bl uart_send_str
 	mov r0, '0'
 	bl uart_send_char
-	/*lea r0, space
-	bl uart_send_str*/
 	ld r0, register_pc
 	bl uart_send_int
 	lea r0, space
 	bl uart_send_str
 	mov r0, r6
 	bl uart_send_int
-	/*lea r0, space
-	bl uart_send_str*/
 	mov r0, r7
 	bl uart_send_int_newline
 	pop r6-r8, pc
