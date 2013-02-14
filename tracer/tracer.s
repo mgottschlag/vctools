@@ -368,19 +368,63 @@ load_executed:
 	/* store the result */
 	mov r0, r1
 	mov r1, r6
+
+	/* increase all timer counter values a bit to compensate the slowdown */
+	cmp r7, 0x7e003004
+	bcs 1f
+	cmp r7, 0x7e003018
+	bcc 1f
+	cmp r7, 0x7e003008
+	beq 1f
+	divu r1, r1, 10
+1:
 	bl store_register
 	/* hide sd card data spam */
 	ld r0, register_pc
-	cmp r0, 0x80001a74
+	cmp r0, 0x80001a7c
+	/*cmp r0, 0x80001a74*/
 	beq load_skip_output
-	cmp r0, 0x80001a7a
+	cmp r0, 0x80001a82
+	/*cmp r0, 0x80001a7a*/
 	beq load_skip_output
-	cmp r0, 0x80001a86
+	cmp r0, 0x80001a8e
+	/*cmp r0, 0x80001a86*/
 	beq load_skip_output
-	cmp r0, 0x80001a94
+	cmp r0, 0x80001a9c
+	/*cmp r0, 0x80001a94*/
 	beq load_skip_output
 	/* hide copying start.elf to high memory */
-	cmp r0, 0x800018c2
+	cmp r0, 0x800018ca
+	/*cmp r0, 0x800018c2*/
+	beq load_skip_output
+	/* skip the timer loop */
+	cmp r0, 0x0fa0fe72
+	beq load_skip_output
+	cmp r0, 0x0fa0fe7a
+	beq load_skip_output
+	/* skip weird AXIP reads */
+	/*cmp r0, 0x0fa5b6d0
+	btq load_skip_output*/
+	cmp r0, 0x0fa15f00
+	beq load_skip_output
+	cmp r0, 0x0fa15f06
+	beq load_skip_output
+	cmp r0, 0x0fa48f5a
+	bne 1f
+	cmp r7, 0x7ee08044
+	blt 1f
+	cmp r7, 0x7ee08064
+	bgt 1f
+	b load_skip_output
+1:
+	/* skip loads which don't target hardware registers */
+	lsr r0, r7, 28
+	bne r0, 0x7, load_skip_output
+	/* skip weird MULT+0xc0 reads */
+	cmp r7, 0x7e0000c0
+	beq load_skip_output
+	/* completely hide all accesses to the clock time */
+	cmp r7, 0x7e003004
 	beq load_skip_output
 	/* dump the load data */
 	lea r0, load_label
@@ -404,13 +448,32 @@ store:
 	mov r6, r0
 	/* hide sd card data spam */
 	ld r0, register_pc
-	cmp r0, 0x80001a9a
+	cmp r0, 0x80001aa2
+	/*cmp r0, 0x80001a9a*/
 	beq store_skip_output
 	/* hide copying start.elf to high memory */
-	cmp r0, 0x800018c6
+	cmp r0, 0x800018ce
+	/*cmp r0, 0x800018c6*/
 	beq store_skip_output
 	/* hide start.elf clearing .bss */
-	cmp r0, 0x0f046b5e
+	cmp r0, 0x0fa48fee
+	/*cmp r0, 0x0f046b5e*/
+	beq store_skip_output
+	/* skip the timer loop */
+	cmp r0, 0x0fa0fe70
+	beq store_skip_output
+	cmp r0, 0x0fa0fe9a
+	beq store_skip_output
+	/* skip weird AXIP writes */
+	cmp r0, 0x0fa15f04
+	beq load_skip_output
+	cmp r0, 0x0fa15f0a
+	beq load_skip_output
+	/* skip stores which don't target hardware registers */
+	lsr r0, r7, 28
+	bne r0, 0x7, store_skip_output
+	/* skip weird MULT+0xc0 writes */
+	cmp r7, 0x7e0000c0
 	beq store_skip_output
 	/* dump the store data */
 	lea r0, store_label
@@ -432,6 +495,31 @@ store_skip_output:
 	st r6, interrupt_vector_address
 	pop r6-r8, pc
 1:
+	ld r0, register_pc
+	/* intercept writes to the uart GPIO settings */
+	cmp r7, 0x7e200004
+	bne 1f
+	and r6, 0xfffc0fff
+	or r6, 0x00012000
+1:
+	/* intercept writes to the SDCO lock registers (?) */
+	cmp r7, 0x7ee0003c
+	bne 1f
+	pop r6-r8, pc
+1:
+	cmp r7, 0x7ee00040
+	bne 1f
+	pop r6-r8, pc
+1:
+	/* increase all timer counter values a bit to compensate the slowdown */
+	cmp r7, 0x7e00300c
+	bcs 1f
+	cmp r7, 0x7e003018
+	bcc 1f
+	/*add r6, 0x100000*/
+	mul r6, 10
+1:
+
 	/* execute the store */
 	lea r5, store_instructions
 	lsl r0, r8, 2
