@@ -4,3 +4,69 @@ brief: BSC2
 size: 0x1000
 desc: >
   TBD. Used for HDMI interface.
+registers:
+  0x0:
+    name: CTRL
+    brief: Control Register
+    bits:
+      0:
+        name: READ
+      5-4:
+        name: CLEAR
+      7:
+        name: ST
+      8:
+        name: INTD
+      9:
+        name: INTT
+      10:
+        name: INTR
+      15:
+        name: I2CEN
+  0x4:
+    name: STAT
+    brief: Status Register
+    bits:
+      0:
+        name: TA
+      1:
+        name: DONE
+      2:
+        name: TXW
+      3:
+        name: RXR
+      4:
+        name: TXD
+      5:
+        name: RXD
+      6:
+        name: TXE
+      7:
+        name: RXF
+      8:
+        name: ERR
+      9:
+        name: CLKT
+  0x8:
+    name: DLEN
+    brief: Data Length
+  0xc:
+    name: ADDR
+    brief: Slave Address
+  0x10:
+    name: FIFO
+    brief: Data FIFO
+  0x14:
+    name: DIV
+    brief: Clock Divider
+  0x18:
+    name: DEL
+    brief: Data Delay
+    bits:
+      15-0:
+        name: REDL
+      16-31:
+        name: FEDL
+  0x1c:
+    name: CLKT
+    brief: Clock Stretch Timeout
