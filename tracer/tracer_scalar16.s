@@ -7,6 +7,9 @@ execute_scalar16:
 	/* nop */
 	cmp r14, 0x0001
 	beq next_instruction
+	/* nop */
+	cmp r14, 0x0002
+	beq execute_wait
 	/* enable/disable interrupts */
 	beq r14, 0x0004, enable_interrupts
 	beq r14, 0x0005, disable_interrupts
@@ -24,10 +27,12 @@ execute_scalar16:
 	/* tbh */
 	beq r0, 0x5, execute_tbh
 	/* cpuid */
-	beq r0, 0x7, execute_cpuid
+	cmp r0, 0x7
+	beq execute_cpuid
 	/* swi */
 	lsr r0, r14, 6
-	beq r0, 0x7, execute_swi_imm
+	cmp r0, 0x7
+	beq execute_swi_imm
 	/* push/pop */
 	lsr r0, r14, 9
 	cmp r0, 0x1
@@ -57,6 +62,21 @@ execute_scalar16:
 
 	/* unknown instruction */
 	bl panic
+
+execute_wait:
+	add r15, 2
+	st r15, register_pc
+	/*ld r0, register_sr
+	btst r0, 30
+	beq wait_interrupts_disabled
+	.short 0x0004
+	.short 0x0002
+	.short 0x0005
+	bl next_instruction
+wait_interrupts_disabled:*/
+	/* TODO: what is this supposed to do? */
+	.short 0x0002
+	b execute_instruction
 
 enable_interrupts:
 	ld r0, register_sr
