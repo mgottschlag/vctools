@@ -30,17 +30,10 @@ execute_scalar32:
 	lsr r0, r14, 10
 	cmp r0, 0x2a
 	beq execute_ld_st_o16
-	/* mulhd */
-	lsr r0, r14, 7
-	cmp r0, 0x188
-	beq execute_mulhd
-	/* div */
-	cmp r0, 0x189
-	beq execute_div
-	/* add shl 8 */
-	lsr r0, r14, 5
-	cmp r0, 0x62f
-	beq execute_add_shl_8
+	/* mulhd, div, add shl, other unknown instructions */
+	lsr r0, r14, 10
+	cmp r0, 0x31
+	beq execute_various
 	/* binary op */
 	lsr r0, r14, 10
 	cmp r0, 0x2c
@@ -342,11 +335,8 @@ ld_st_o16_base:
 	.byte 31
 	.byte 0
 
-execute_mulhd:
-	/* TODO */
-	bl panic
-
-execute_div:
+execute_various:
+	/* TODO: is this correct for all instructions in this range? */
 	add r6, r15, 2
 	ldh r6, (r6)
 	/* condition */
@@ -359,55 +349,86 @@ execute_div:
 	mov r7, r0
 	/* b */
 	btst r6, 6
-	bne execute_div_immediate
+	bne execute_various_immediate
 	and r0, r6, 0x1f
 	bl load_register
-	b execute_div_common
-execute_div_immediate:
+	b execute_various_common
+execute_various_immediate:
 	exts r0, r6, 5
-execute_div_common:
+execute_various_common:
 	/* signed/unsigned? */
 	lsr r1, r14, 5
-	and r1, 0x3
+	extu r1, 5
 	mul r1, 6
-	lea r2, div_instructions
+	lea r2, various_instructions
 	add r1, r2
+	lea r3, various_executed
 	b r1
-div_instructions:
+various_instructions:
+	mulhd.ss r1, r7, r0
+	b r3
+	mulhd.su r1, r7, r0
+	b r3
+	mulhd.us r1, r7, r0
+	b r3
+	mulhd.uu r1, r7, r0
+	b r3
 	divs r1, r7, r0
-	b div_executed
+	b r3
 	divsu r1, r7, r0
-	b div_executed
+	b r3
 	divus r1, r7, r0
-	b div_executed
+	b r3
 	divu r1, r7, r0
-div_executed:
-	/* d */
-	and r0, r14, 0x1f
-	bl store_register
-	bl next_instruction
-
-execute_add_shl_8:
-	add r6, r15, 2
-	ldh r6, (r6)
-	btst r6, 6
-	beq 1f
-	/* TODO */
-	bl panic
-1:
-	/* condition */
-	lsr r0, r6, 7
-	and r0, 0xf
-	bl check_condition
-	/* a */
-	lsr r0, r6, 11
-	bl load_register
-	mov r7, r0
-	/* b */
-	and r0, r6, 0x1f
-	bl load_register
-	lsl r0, 8
-	add r1, r0, r7
+	b r3
+	.short 0xc501, 0x3f00
+	b r3
+	.short 0xc521, 0x3f00
+	b r3
+	.short 0xc541, 0x3f00
+	b r3
+	.short 0xc561, 0x3f00
+	b r3
+	.short 0xc581, 0x3f00
+	b r3
+	.short 0xc5a1, 0x3f00
+	b r3
+	.short 0xc5c1, 0x3f00
+	b r3
+	.short 0xc5e1, 0x3f00
+	b r3
+	.short 0xc601, 0x3f00
+	b r3
+	.short 0xc621, 0x3f00
+	b r3
+	.short 0xc641, 0x3f00
+	b r3
+	.short 0xc661, 0x3f00
+	b r3
+	.short 0xc681, 0x3f00
+	b r3
+	.short 0xc6a1, 0x3f00
+	b r3
+	.short 0xc6c1, 0x3f00
+	b r3
+	.short 0xc6e1, 0x3f00
+	b r3
+	.short 0xc701, 0x3f00
+	b r3
+	.short 0xc721, 0x3f00
+	b r3
+	.short 0xc741, 0x3f00
+	b r3
+	.short 0xc761, 0x3f00
+	b r3
+	.short 0xc781, 0x3f00
+	b r3
+	.short 0xc7a1, 0x3f00
+	b r3
+	.short 0xc7c1, 0x3f00
+	b r3
+	.short 0xc7e1, 0x3f00
+various_executed:
 	/* d */
 	and r0, r14, 0x1f
 	bl store_register
